@@ -1,6 +1,7 @@
 package key
 
 import (
+	"fmt"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -23,4 +24,8 @@ func HasCapiWatchLabel(labels map[string]string) bool {
 		}
 	}
 	return false
+}
+
+func SecretName(clusterName string) string {
+	return fmt.Sprintf("%s-encryption")
 }
