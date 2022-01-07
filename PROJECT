@@ -1,0 +1,17 @@
+domain: giantswarm.io
+layout:
+- go.kubebuilder.io/v3
+projectName: encryption-provider-operator
+repo: github.com/giantswarm/encryption-provider-operator
+resources:
+- controller: true
+  domain: giantswarm.io
+  group: cluster.x-k8s.io
+  kind: Cluster
+  version: v1alpha3
+- controller: true
+  domain: giantswarm.io
+  group: cluster.x-k8s.io
+  kind: Cluster
+  version: v1alpha3
+version: "3"

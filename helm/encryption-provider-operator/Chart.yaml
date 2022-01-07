@@ -1,0 +1,9 @@
+name: encryption-provider-operator
+version: [[ .Version ]]
+description: "Operator for managing encryption config for encryptiong k8s secret in etcd"
+appVersion: "[[ .AppVersion ]]"
+home: "https://github.com/giantswarm/encryption-provider-operator"
+apiVersion: v1
+annotations:
+  application.giantswarm.io/team: "phoenix"
+  config.giantswarm.io/version: 1.x.x
