@@ -92,7 +92,6 @@ func (s *Service) Reconcile() error {
 			s.logger.Error(err, "failed to get encryption provider config secret for cluster")
 			return err
 		}
-		s.logger.Info("created a new encryption provider config secret")
 	} else if err != nil {
 		s.logger.Error(err, "failed to get encryption provider config secret for cluster")
 		return err
@@ -146,6 +145,8 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context) error {
 		encryptionKey = newKey
 		encryptionProviderType = DefaultEncryptionProviderType
 
+		s.logger.Info("generated a new encryption key for Poly1305 encryption provider")
+
 	} else if err != nil {
 		s.logger.Error(err, "failed to get old encryption provider key secret")
 		return err
@@ -159,6 +160,8 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context) error {
 			// the old encryption key are using old less secure type
 			// https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#providers
 			encryptionProviderType = LegacyEncryptionProviderType
+			s.logger.Info("fetched and migrated AESCBC encryption key from legacy product")
+
 		}
 	}
 
@@ -207,6 +210,9 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context) error {
 		s.logger.Error(err, "failed to create encryption provider secret")
 		return err
 	}
+
+	s.logger.Info("created a new encryption provider config secret")
+
 	return nil
 }
 
