@@ -31,7 +31,7 @@ spec:
         - /manager
         args:
         - --leader-elect
-        - --key-rotation-period={{.Values.encryptionProvider.keyRotationPeriod}}}
+        - --key-rotation-period={{.Values.encryptionProvider.keyRotationPeriod}}
         resources:
           requests:
             cpu: 100m

@@ -8,7 +8,7 @@ registry:
   domain: docker.io
 
 encryptionProvider:
-  keyRotationPeriod: 180d
+  keyRotationPeriod: 4320h
 
 pod:
   user:
