@@ -18,7 +18,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -58,12 +57,6 @@ func (r *ClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	if err := r.Get(ctx, req.NamespacedName, cluster); err != nil {
 		logger.Error(err, "Cluster does not exist")
 		return ctrl.Result{}, err
-	}
-	// check if CR got CAPI watch-filter label
-	if !key.HasCapiWatchLabel(cluster.Labels) {
-		logger.Info(fmt.Sprintf("Cluster CR do not have %s=%s label, ignoring CR", key.ClusterWatchFilterLabel, "capi"))
-		// ignoring this CR
-		return ctrl.Result{}, nil
 	}
 
 	var encryptionService *encryption.Service
