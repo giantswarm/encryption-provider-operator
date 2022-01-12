@@ -92,6 +92,7 @@ func (s *Service) Reconcile() error {
 			s.logger.Error(err, "failed to get encryption provider config secret for cluster")
 			return err
 		}
+		s.logger.Info("created a new encryption provider config secret")
 	} else if err != nil {
 		s.logger.Error(err, "failed to get encryption provider config secret for cluster")
 		return err

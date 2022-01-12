@@ -28,5 +28,5 @@ func HasCapiWatchLabel(labels map[string]string) bool {
 }
 
 func SecretName(clusterName string) string {
-	return fmt.Sprintf("%s-encryption", clusterName)
+	return fmt.Sprintf("%s-encryption-provider-config", clusterName)
 }
