@@ -19,7 +19,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"github.com/giantswarm/encryption-provider-operator/pkg/encryption"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -29,7 +28,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	"github.com/giantswarm/encryption-provider-operator/pkg/encryption"
 	"github.com/giantswarm/encryption-provider-operator/pkg/key"
+)
+
+const (
+	DefaultKeyRotationPeriod = time.Hour * 24 * 180 // rorate keys after 180 days
 )
 
 // ClusterReconciler reconciles a Cluster object
@@ -66,7 +70,12 @@ func (r *ClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	var encryptionService *encryption.Service
 	{
-		c := encryption.Config{}
+		c := encryption.Config{
+			Cluster:                  cluster,
+			CtrlClient:               r.Client,
+			DefaultKeyRotationPeriod: DefaultKeyRotationPeriod,
+			Logger:                   logger,
+		}
 
 		encryptionService, err = encryption.New(c)
 		if err != nil {

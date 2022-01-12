@@ -7,8 +7,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/giantswarm/encryption-provider-operator/pkg/label"
-	"github.com/giantswarm/encryption-provider-operator/pkg/project"
 	"text/template"
 	"time"
 
@@ -17,10 +15,11 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
-
 	ctrlclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/encryption-provider-operator/pkg/key"
+	"github.com/giantswarm/encryption-provider-operator/pkg/label"
+	"github.com/giantswarm/encryption-provider-operator/pkg/project"
 )
 
 const (
@@ -39,8 +38,8 @@ const (
 )
 
 type Config struct {
-	Cluster           *capi.Cluster
-	DefaultRollPeriod time.Time
+	Cluster                  *capi.Cluster
+	DefaultKeyRotationPeriod time.Duration
 
 	CtrlClient ctrlclient.Client
 	Logger     logr.Logger
@@ -49,7 +48,7 @@ type Config struct {
 type Service struct {
 	cluster *capi.Cluster
 
-	defaultRollPeriod time.Time
+	defaultKeyRotationPeriod time.Duration
 
 	ctrlClient ctrlclient.Client
 	logger     logr.Logger
@@ -67,10 +66,10 @@ func New(c Config) (*Service, error) {
 	}
 
 	s := &Service{
-		cluster:           c.Cluster,
-		defaultRollPeriod: c.DefaultRollPeriod,
-		ctrlClient:        c.CtrlClient,
-		logger:            c.Logger,
+		cluster:                  c.Cluster,
+		defaultKeyRotationPeriod: c.DefaultKeyRotationPeriod,
+		ctrlClient:               c.CtrlClient,
+		logger:                   c.Logger,
 	}
 
 	return s, nil
