@@ -19,6 +19,7 @@ package main
 import (
 	"flag"
 	"os"
+	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -51,12 +52,13 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	var keyRotationPeriod time.Duration
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
+	flag.DurationVar(&keyRotationPeriod, "key-rotation-period", time.Hour*24*180, "The default period used for key rotation.")
 
 	opts := zap.Options{
 		Development: true,
@@ -80,9 +82,10 @@ func main() {
 	}
 
 	if err = (&controllers.ClusterReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers"),
-		Scheme: mgr.GetScheme(),
+		DefaultKeyRotationPeriod: keyRotationPeriod,
+		Client:                   mgr.GetClient(),
+		Log:                      ctrl.Log.WithName("controllers"),
+		Scheme:                   mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Cluster")
 		os.Exit(1)

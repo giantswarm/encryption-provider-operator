@@ -32,12 +32,10 @@ import (
 	"github.com/giantswarm/encryption-provider-operator/pkg/key"
 )
 
-const (
-	DefaultKeyRotationPeriod = time.Hour * 24 * 180 // rorate keys after 180 days
-)
-
 // ClusterReconciler reconciles a Cluster object
 type ClusterReconciler struct {
+	DefaultKeyRotationPeriod time.Duration
+
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
@@ -73,7 +71,7 @@ func (r *ClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		c := encryption.Config{
 			Cluster:                  cluster,
 			CtrlClient:               r.Client,
-			DefaultKeyRotationPeriod: DefaultKeyRotationPeriod,
+			DefaultKeyRotationPeriod: r.DefaultKeyRotationPeriod,
 			Logger:                   logger,
 		}
 
