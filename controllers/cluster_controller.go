@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/giantswarm/encryption-provider-operator/pkg/encryption"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -63,11 +64,25 @@ func (r *ClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, nil
 	}
 
+	var encryptionService *encryption.Service
+	{
+		c := encryption.Config{}
+
+		encryptionService, err = encryption.New(c)
+		if err != nil {
+			logger.Error(err, "failed to create encryption service")
+			return ctrl.Result{}, err
+		}
+	}
+
 	if cluster.DeletionTimestamp != nil {
 		// clean
-
+		err = encryptionService.Delete()
+		if err != nil {
+			logger.Error(err, "failed to clean resources")
+			return ctrl.Result{}, err
+		}
 		// remove finalizer from Cluster
-
 		controllerutil.RemoveFinalizer(cluster, key.FinalizerName)
 		err = r.Update(ctx, cluster)
 		if err != nil {
@@ -77,6 +92,11 @@ func (r *ClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	} else {
 		// reconcile
+		err = encryptionService.Reconcile()
+		if err != nil {
+			logger.Error(err, "failed to reconcile resource")
+			return ctrl.Result{}, err
+		}
 
 		// add finalizer to AWSMachineTemplate
 		controllerutil.AddFinalizer(cluster, key.FinalizerName)
