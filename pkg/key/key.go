@@ -17,16 +17,6 @@ func GetClusterIDFromLabels(t v1.ObjectMeta) string {
 	return t.GetLabels()[ClusterNameLabel]
 }
 
-func HasCapiWatchLabel(labels map[string]string) bool {
-	value, ok := labels[ClusterWatchFilterLabel]
-	if ok {
-		if value == "capi" {
-			return true
-		}
-	}
-	return false
-}
-
 func SecretName(clusterName string) string {
 	return fmt.Sprintf("%s-encryption-provider-config", clusterName)
 }

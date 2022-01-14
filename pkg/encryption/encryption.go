@@ -10,6 +10,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/go-logr/logr"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -18,7 +19,6 @@ import (
 	ctrlclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/encryption-provider-operator/pkg/key"
-	"github.com/giantswarm/encryption-provider-operator/pkg/label"
 	"github.com/giantswarm/encryption-provider-operator/pkg/project"
 )
 
@@ -209,7 +209,6 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, cluster
 			Labels: map[string]string{
 				label.Cluster:        clusterName,
 				label.ManagedBy:      project.Name(),
-				label.RandomKey:      label.RandomKeyTypeEncryption,
 				key.ClusterNameLabel: clusterName,
 			},
 		},
