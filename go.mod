@@ -5,6 +5,7 @@ go 1.16
 require (
 	cloud.google.com/go v0.81.0 // indirect
 	github.com/Azure/go-autorest/autorest v0.11.18 // indirect
+	github.com/giantswarm/k8smetadata v0.7.1
 	github.com/go-logr/logr v0.1.0
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect

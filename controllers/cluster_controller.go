@@ -18,7 +18,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -28,11 +27,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	"github.com/giantswarm/encryption-provider-operator/pkg/encryption"
 	"github.com/giantswarm/encryption-provider-operator/pkg/key"
 )
 
 // ClusterReconciler reconciles a Cluster object
 type ClusterReconciler struct {
+	DefaultKeyRotationPeriod time.Duration
+
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
@@ -56,27 +58,47 @@ func (r *ClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		logger.Error(err, "Cluster does not exist")
 		return ctrl.Result{}, err
 	}
-	// check if CR got CAPI watch-filter label
-	if !key.HasCapiWatchLabel(cluster.Labels) {
-		logger.Info(fmt.Sprintf("Cluster CR do not have %s=%s label, ignoring CR", key.ClusterWatchFilterLabel, "capi"))
-		// ignoring this CR
-		return ctrl.Result{}, nil
+
+	var encryptionService *encryption.Service
+	{
+		c := encryption.Config{
+			Cluster:                  cluster,
+			CtrlClient:               r.Client,
+			DefaultKeyRotationPeriod: r.DefaultKeyRotationPeriod,
+			Logger:                   logger,
+		}
+
+		encryptionService, err = encryption.New(c)
+		if err != nil {
+			logger.Error(err, "failed to create encryption service")
+			return ctrl.Result{}, err
+		}
 	}
 
 	if cluster.DeletionTimestamp != nil {
 		// clean
-
+		err = encryptionService.Delete()
+		if err != nil {
+			logger.Error(err, "failed to clean resources")
+			return ctrl.Result{}, err
+		}
 		// remove finalizer from Cluster
-
 		controllerutil.RemoveFinalizer(cluster, key.FinalizerName)
 		err = r.Update(ctx, cluster)
 		if err != nil {
 			logger.Error(err, "failed to remove finalizer on Cluster CR")
 			return ctrl.Result{}, err
 		}
+		// resource was cleaned up, we dont need to reconcile again
+		return ctrl.Result{}, nil
 
 	} else {
 		// reconcile
+		err = encryptionService.Reconcile()
+		if err != nil {
+			logger.Error(err, "failed to reconcile resource")
+			return ctrl.Result{}, err
+		}
 
 		// add finalizer to AWSMachineTemplate
 		controllerutil.AddFinalizer(cluster, key.FinalizerName)

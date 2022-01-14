@@ -7,6 +7,9 @@ image:
 registry:
   domain: docker.io
 
+encryptionProvider:
+  keyRotationPeriod: 4320h
+
 pod:
   user:
     id: 1000
