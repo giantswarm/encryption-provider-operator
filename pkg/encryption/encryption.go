@@ -101,7 +101,7 @@ func (s *Service) Reconcile() error {
 		return err
 	} else {
 		// config already exists, check for key rotation
-		err = s.keyRotation(ctx)
+		err = s.keyRotation(ctx, encryptionProviderSecret)
 		if err != nil {
 			return err
 		}
@@ -226,7 +226,7 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, cluster
 	return nil
 }
 
-func (s *Service) keyRotation(ctx context.Context) error {
+func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.Secret) error {
 	// TODO implement the magic
 
 	return nil
