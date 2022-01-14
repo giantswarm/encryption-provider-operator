@@ -114,7 +114,10 @@ func (s *Service) Delete() error {
 		}}
 
 	err := s.ctrlClient.Delete(ctx, &encryptionProviderSecret)
-	if err != nil {
+	if apierrors.IsNotFound(err) {
+		// secret is already deleted, fall thru
+		return nil
+	} else if err != nil {
 		s.logger.Error(err, "failed to delete encryption provider config secret for cluster")
 		return err
 	}
@@ -122,8 +125,14 @@ func (s *Service) Delete() error {
 }
 
 func (s *Service) createNewEncryptionProviderSecret(ctx context.Context) error {
+
+	clusterName := s.cluster.ClusterName
+	if clusterName == "" {
+		clusterName = s.cluster.Name
+	}
+
 	// check if there is old encryption config that we can use for migration
-	oldEncryptionSecretName := fmt.Sprintf("%s-encryption", s.cluster.ClusterName)
+	oldEncryptionSecretName := fmt.Sprintf("%s-encryption", clusterName)
 
 	var oldEncryptionSecret v1.Secret
 	err := s.ctrlClient.Get(ctx, ctrlclient.ObjectKey{
@@ -193,13 +202,13 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context) error {
 
 	encryptionProviderSecret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      key.SecretName(s.cluster.ClusterName),
+			Name:      key.SecretName(clusterName),
 			Namespace: s.cluster.Namespace,
 			Labels: map[string]string{
-				label.Cluster:        s.cluster.ClusterName,
+				label.Cluster:        clusterName,
 				label.ManagedBy:      project.Name(),
 				label.RandomKey:      label.RandomKeyTypeEncryption,
-				key.ClusterNameLabel: s.cluster.ClusterName,
+				key.ClusterNameLabel: clusterName,
 			},
 		},
 		StringData: secretData,

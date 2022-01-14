@@ -89,6 +89,8 @@ func (r *ClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 			logger.Error(err, "failed to remove finalizer on Cluster CR")
 			return ctrl.Result{}, err
 		}
+		// resource was cleaned up, we dont need to reconcile again
+		return ctrl.Result{}, nil
 
 	} else {
 		// reconcile
