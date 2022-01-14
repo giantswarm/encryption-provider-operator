@@ -77,17 +77,21 @@ func New(c Config) (*Service, error) {
 
 func (s *Service) Reconcile() error {
 	ctx := context.TODO()
+	clusterName := s.cluster.ClusterName
+	if clusterName == "" {
+		clusterName = s.cluster.Name
+	}
 
 	var encryptionProviderSecret v1.Secret
 
 	err := s.ctrlClient.Get(ctx, ctrlclient.ObjectKey{
-		Name:      key.SecretName(s.cluster.ClusterName),
+		Name:      key.SecretName(clusterName),
 		Namespace: s.cluster.Namespace,
 	}, &encryptionProviderSecret)
 
 	if apierrors.IsNotFound(err) {
 		// create new encryption secret
-		err := s.createNewEncryptionProviderSecret(ctx)
+		err := s.createNewEncryptionProviderSecret(ctx, clusterName)
 		if err != nil {
 			s.logger.Error(err, "failed to get encryption provider config secret for cluster")
 			return err
@@ -107,9 +111,13 @@ func (s *Service) Reconcile() error {
 
 func (s *Service) Delete() error {
 	ctx := context.TODO()
+	clusterName := s.cluster.ClusterName
+	if clusterName == "" {
+		clusterName = s.cluster.Name
+	}
 	encryptionProviderSecret := v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      key.SecretName(s.cluster.ClusterName),
+			Name:      key.SecretName(clusterName),
 			Namespace: s.cluster.Namespace,
 		}}
 
@@ -124,13 +132,7 @@ func (s *Service) Delete() error {
 	return nil
 }
 
-func (s *Service) createNewEncryptionProviderSecret(ctx context.Context) error {
-
-	clusterName := s.cluster.ClusterName
-	if clusterName == "" {
-		clusterName = s.cluster.Name
-	}
-
+func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, clusterName string) error {
 	// check if there is old encryption config that we can use for migration
 	oldEncryptionSecretName := fmt.Sprintf("%s-encryption", clusterName)
 
