@@ -480,12 +480,13 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 			allSecrets.Items[i].Annotations = map[string]string{}
 		}
 		allSecrets.Items[i].Annotations[AnnotationRewriteTimestamp] = timestamp
+
+		err = wcClient.Update(ctx, &allSecrets.Items[i])
+		if err != nil {
+			return err
+		}
 	}
 
-	err = wcClient.Update(ctx, &allSecrets)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
