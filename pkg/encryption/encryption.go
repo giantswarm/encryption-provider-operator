@@ -483,7 +483,9 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 		allSecrets.Items[i].Annotations[AnnotationRewriteTimestamp] = timestamp
 
 		err = wcClient.Update(ctx, &allSecrets.Items[i])
-		if err != nil {
+		if apierrors.IsNotFound(err) {
+			// secret was deleted just ignore and fall thru
+		} else if err != nil {
 			return err
 		}
 	}
