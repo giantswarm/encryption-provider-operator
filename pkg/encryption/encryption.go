@@ -48,15 +48,16 @@ const (
 type Config struct {
 	Cluster                  *capi.Cluster
 	DefaultKeyRotationPeriod time.Duration
+	RegistryDomain           string
 
 	CtrlClient ctrlclient.Client
 	Logger     logr.Logger
 }
 
 type Service struct {
-	cluster *capi.Cluster
-
+	cluster                  *capi.Cluster
 	defaultKeyRotationPeriod time.Duration
+	registryDomain           string
 
 	ctrlClient ctrlclient.Client
 	logger     logr.Logger
@@ -69,12 +70,16 @@ func New(c Config) (*Service, error) {
 	if c.CtrlClient == nil {
 		return nil, errors.New("ctrlClient cannot be nil")
 	}
+	if c.RegistryDomain == "nil" {
+		return nil, errors.New("RegistryDomain cannot be empty")
+	}
 	if c.Logger == nil {
 		return nil, errors.New("logger cannot be nil")
 	}
 
 	s := &Service{
 		cluster:                  c.Cluster,
+		registryDomain:           c.RegistryDomain,
 		defaultKeyRotationPeriod: c.DefaultKeyRotationPeriod,
 		ctrlClient:               c.CtrlClient,
 		logger:                   c.Logger,

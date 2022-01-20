@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"os"
 
 	corev1 "k8s.io/api/core/v1"
@@ -43,7 +44,17 @@ func GetWCK8sClient(ctx context.Context, ctrlClient client.Client, clusterName s
 			},
 				&secret)
 
-			if err != nil {
+			if apierrors.IsNotFound(err) {
+				// in legacy gs the kubeconfig is in namespace equal to cluster ID
+				err = ctrlClient.Get(ctx, client.ObjectKey{
+					Name:      fmt.Sprintf("%s-kubeconfig", clusterName),
+					Namespace: clusterName,
+				},
+					&secret)
+				if err != nil {
+					return nil, err
+				}
+			} else if err != nil {
 				return nil, err
 			}
 		}

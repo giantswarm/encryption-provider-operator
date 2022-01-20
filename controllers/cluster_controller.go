@@ -34,6 +34,7 @@ import (
 // ClusterReconciler reconciles a Cluster object
 type ClusterReconciler struct {
 	DefaultKeyRotationPeriod time.Duration
+	RegistryDomain           string
 
 	client.Client
 	Log    logr.Logger
