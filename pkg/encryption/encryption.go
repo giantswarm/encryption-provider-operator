@@ -283,6 +283,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 				s.logger.Error(err, "failed to remove old encryption key from the configuration secret")
 				return err
 			}
+			s.logger.Info("removed old key from the encryption config")
 
 			encryptionProviderSecret.Annotations[AnnotationLastRotation] = time.Now().Format(time.RFC3339)
 			delete(encryptionProviderSecret.Annotations, AnnotationRotationInProgress)
@@ -486,7 +487,6 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 			return err
 		}
 	}
-
 	return nil
 }
 
