@@ -8,7 +8,7 @@ require (
 	github.com/giantswarm/k8smetadata v0.7.1
 	github.com/go-logr/logr v0.1.0
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
+	github.com/google/go-cmp v0.5.6
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/onsi/gomega v1.14.0 // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect
