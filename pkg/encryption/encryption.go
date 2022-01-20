@@ -476,6 +476,9 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 	timestamp := time.Now().Format(time.RFC3339)
 
 	for i := range allSecrets.Items {
+		if allSecrets.Items[i].Annotations == nil {
+			allSecrets.Items[i].Annotations = map[string]string{}
+		}
 		allSecrets.Items[i].Annotations[AnnotationRewriteTimestamp] = timestamp
 	}
 
@@ -514,9 +517,9 @@ func (s *Service) countMasterNodesWithLatestConfig(ctx context.Context, wcClient
 
 	nodeCount := len(nodes.Items)
 	if nodeCount != 1 && nodeCount != 3 && nodeCount != 5 {
-		err = errors.New("unexpected number of master nodes")
+		err = errors.New("unexpected number of master nodes, cluster is probably in transiting state")
 		s.logger.Error(err, fmt.Sprintf("expected 1 or 3 or 5 master nodes but found %d", nodeCount))
-		return false, err
+		return false, nil
 	}
 
 	masterNodeWithLatestConfig := 0
