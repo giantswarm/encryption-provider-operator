@@ -353,7 +353,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			// deploy the app that watches the encryption config
 
 		} else {
-			s.logger.Info("keys are not %s old, not rotating")
+			s.logger.Info("keys are not %s old, not rotating", s.defaultKeyRotationPeriod.String())
 		}
 
 	} else {
