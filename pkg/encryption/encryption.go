@@ -2,7 +2,6 @@ package encryption
 
 import (
 	"context"
-	"crypto/md5"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
@@ -13,6 +12,7 @@ import (
 
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/go-logr/logr"
+	"golang.org/x/crypto/sha3"
 	"gopkg.in/yaml.v2"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -39,8 +39,8 @@ const (
 	AnnotationRewriteTimestamp   = "encryption.giantswarm.io/rewrited-at"
 	AnnotationLastRotation       = "encryption.giantswarm.io/last-rotation"
 
-	EncryptionProviderConfigMD5SecretName      = "encryption-provider-config-md5"
-	EncryptionProviderConfigMD5SecretNamespace = "kube-system"
+	EncryptionProviderConfigShake256SecretName      = "encryption-provider-config-shake256"
+	EncryptionProviderConfigShake256SecretNamespace = "kube-system"
 
 	MasterNodeLabel = "node-role.kubernetes.io/master"
 )
@@ -245,7 +245,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			short description fo what we do here
 			- we get the k8s client to workload cluster
 			- the workload cluster should run app that run pod on each master node
-			and check the encryption config file on host  and save its md5 sum to the secret called EncryptionProviderConfigMD5SecretName
+			and check the encryption config file on host  and save its md5 sum to the secret called EncryptionProviderConfigShake256SecretName
 			this secret will then have md5 check sum fo the file for each master
 			- we fetch teh secret and compare the values of md5 checksum with expected value
 			- this has to match for each master node
@@ -258,8 +258,8 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 		}
 
 		// calculate md5 checksum of the encryption provider config file
-		configMD5Sum := fmt.Sprintf("%x", md5.Sum(encryptionProviderSecret.Data[EncryptionProviderConfig]))
-		masterNodesUpToDate, err := s.countMasterNodesWithLatestConfig(ctx, wcClient, configMD5Sum)
+		configShakeSum := shake256Sum(encryptionProviderSecret.Data[EncryptionProviderConfig])
+		masterNodesUpToDate, err := s.countMasterNodesWithLatestConfig(ctx, wcClient, configShakeSum)
 		if err != nil {
 			return err
 		}
@@ -271,7 +271,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 				s.logger.Error(err, "failed to rewrite all secrets in workload cluster cluster")
 				return err
 			}
-			s.logger.Info(fmt.Sprintf("all secrets on the workload cluster has been rewritten with the new encryption key"))
+			s.logger.Info("all secrets on the workload cluster has been rewritten with the new encryption key")
 
 			err = removeOldEncryptionKey(&encryptionProviderSecret)
 			if err != nil {
@@ -470,7 +470,7 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 
 	timestamp := time.Now().Format(time.RFC3339)
 
-	for i, _ := range allSecrets.Items {
+	for i := range allSecrets.Items {
 		allSecrets.Items[i].Annotations[AnnotationRewriteTimestamp] = timestamp
 	}
 
@@ -481,18 +481,18 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) countMasterNodesWithLatestConfig(ctx context.Context, wcClient ctrlclient.Client, configMD5Sum string) (bool, error) {
+func (s *Service) countMasterNodesWithLatestConfig(ctx context.Context, wcClient ctrlclient.Client, configShake256Sum string) (bool, error) {
 	// get the secret with md5 checksums of the config file
 	var md5Secret v1.Secret
 	err := wcClient.Get(ctx,
 		ctrlclient.ObjectKey{
-			Name:      EncryptionProviderConfigMD5SecretName,
-			Namespace: EncryptionProviderConfigMD5SecretNamespace,
+			Name:      EncryptionProviderConfigShake256SecretName,
+			Namespace: EncryptionProviderConfigShake256SecretNamespace,
 		},
 		&md5Secret)
 	if apierrors.IsNotFound(err) {
 		// secret does not exist yet, not and actual error, lets check next reconciliation loop
-		s.logger.Info(fmt.Sprintf("secret %s do not exists yet on the workload cluster", EncryptionProviderConfigMD5SecretName))
+		s.logger.Info(fmt.Sprintf("secret %s do not exists yet on the workload cluster", EncryptionProviderConfigShake256SecretName))
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -517,7 +517,7 @@ func (s *Service) countMasterNodesWithLatestConfig(ctx context.Context, wcClient
 	masterNodeWithLatestConfig := 0
 	for _, n := range nodes.Items {
 		if v, ok := md5Secret.Data[n.Name]; ok {
-			if string(v) == configMD5Sum {
+			if string(v) == configShake256Sum {
 				// the md5sum matches, this master node has the new config
 				masterNodeWithLatestConfig += 1
 			}
@@ -579,4 +579,11 @@ func getKeyIndex(key configv1.Key) (int, error) {
 
 func keyName(i int) string {
 	return fmt.Sprintf("%s%d", KeyNamePrefix, i)
+}
+
+func shake256Sum(buf []byte) string {
+	h := make([]byte, 64)
+	// Compute a 64-byte hash of buf and put it in h.
+	sha3.ShakeSum256(h, buf)
+	return fmt.Sprintf("%x\n", h)
 }

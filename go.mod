@@ -13,7 +13,7 @@ require (
 	github.com/onsi/gomega v1.14.0 // indirect
 	github.com/prometheus/client_golang v1.11.0 // indirect
 	go.uber.org/zap v1.17.0 // indirect
-	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
+	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	golang.org/x/net v0.0.0-20210716203947-853a461950ff // indirect
 	golang.org/x/oauth2 v0.0.0-20210402161424-2e8d93401602 // indirect
 	gopkg.in/yaml.v2 v2.4.0
