@@ -35,6 +35,7 @@ func GetWCK8sClient(ctx context.Context, ctrlClient client.Client, clusterName s
 		// kubeconfig file already exists, no need to fetch and write again
 
 	} else if os.IsNotExist(err) {
+		var kubeconfig []byte
 		// kubeconfig dont exists we need to fetch it and write to file
 		var secret corev1.Secret
 		{
@@ -54,11 +55,14 @@ func GetWCK8sClient(ctx context.Context, ctrlClient client.Client, clusterName s
 				if err != nil {
 					return nil, err
 				}
+				kubeconfig = secret.Data["kubeConfig"]
 			} else if err != nil {
 				return nil, err
+			} else {
+				kubeconfig = secret.Data["value"]
 			}
 		}
-		err = ioutil.WriteFile(tempKubeconfigFileName(clusterName), secret.Data["value"], 0600)
+		err = ioutil.WriteFile(tempKubeconfigFileName(clusterName), kubeconfig, 0600)
 		if err != nil {
 			return nil, err
 		}

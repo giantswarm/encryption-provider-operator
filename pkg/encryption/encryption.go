@@ -488,13 +488,13 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 
 func (s *Service) countMasterNodesWithLatestConfig(ctx context.Context, wcClient ctrlclient.Client, configShake256Sum string) (bool, error) {
 	// get the secret with md5 checksums of the config file
-	var md5Secret v1.Secret
+	var shake256Secret v1.Secret
 	err := wcClient.Get(ctx,
 		ctrlclient.ObjectKey{
 			Name:      EncryptionProviderConfigShake256SecretName,
 			Namespace: EncryptionProviderConfigShake256SecretNamespace,
 		},
-		&md5Secret)
+		&shake256Secret)
 	if apierrors.IsNotFound(err) {
 		// secret does not exist yet, not and actual error, lets check next reconciliation loop
 		s.logger.Info(fmt.Sprintf("secret %s do not exists yet on the workload cluster", EncryptionProviderConfigShake256SecretName))
@@ -521,7 +521,7 @@ func (s *Service) countMasterNodesWithLatestConfig(ctx context.Context, wcClient
 
 	masterNodeWithLatestConfig := 0
 	for _, n := range nodes.Items {
-		if v, ok := md5Secret.Data[n.Name]; ok {
+		if v, ok := shake256Secret.Data[n.Name]; ok {
 			if string(v) == configShake256Sum {
 				// the md5sum matches, this master node has the new config
 				masterNodeWithLatestConfig += 1
