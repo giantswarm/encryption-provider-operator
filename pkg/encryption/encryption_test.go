@@ -2,14 +2,15 @@ package encryption
 
 import (
 	"fmt"
-	configv1 "github.com/giantswarm/encryption-provider-operator/pkg/config"
-	"gopkg.in/yaml.v2"
 	"reflect"
 	"strconv"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"gopkg.in/yaml.v2"
 	v1 "k8s.io/api/core/v1"
+
+	configv1 "github.com/giantswarm/encryption-provider-operator/pkg/config"
 )
 
 func Test_removeOldEncryptionKey(t *testing.T) {
