@@ -271,6 +271,13 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			}
 			s.logger.Info("all secrets on the workload cluster has been rewritten with the new encryption key")
 
+			// delete the app that watches the encryption config
+			err = s.deleteEncryptionProviderHasherApp(ctx)
+			if err != nil {
+				s.logger.Error(err, "failed to delete ecnryption-config-hasher app to workload cluster")
+				return err
+			}
+
 			err = removeOldEncryptionKey(&encryptionProviderSecret)
 			if err != nil {
 				s.logger.Error(err, "failed to remove old encryption key from the configuration secret")
@@ -283,13 +290,6 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			err = s.ctrlClient.Update(ctx, &encryptionProviderSecret)
 			if err != nil {
 				s.logger.Error(err, "failed to update encryption provider secret")
-				return err
-			}
-
-			// delete the app that watches the encryption config
-			err = s.deleteEncryptionProviderHasherApp(ctx)
-			if err != nil {
-				s.logger.Error(err, "failed to delete ecnryption-config-hasher app to workload cluster")
 				return err
 			}
 		}
@@ -333,6 +333,13 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 				return err
 			}
 
+			// deploy the app that watches the encryption config
+			err = s.deployEncryptionProviderHasherApp(ctx)
+			if err != nil {
+				s.logger.Error(err, "failed to deploy encryption-config-hasher app to workload cluster")
+				return err
+			}
+
 			// keys added, set the new phase on the object
 			encryptionProviderSecret.Annotations[annotation.EncryptionRotationInProgress] = "true"
 			// delete the Force rotation annotation if it exists
@@ -342,13 +349,6 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			err = s.ctrlClient.Update(ctx, &encryptionProviderSecret)
 			if err != nil {
 				s.logger.Error(err, "failed to update encryption provider secret")
-				return err
-			}
-
-			// deploy the app that watches the encryption config
-			err = s.deployEncryptionProviderHasherApp(ctx)
-			if err != nil {
-				s.logger.Error(err, "failed to deploy ecnryption-config-hasher app to workload cluster")
 				return err
 			}
 
