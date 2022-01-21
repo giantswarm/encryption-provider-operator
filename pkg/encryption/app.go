@@ -10,6 +10,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	ctrlclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/giantswarm/encryption-provider-operator/pkg/project"
 )
@@ -28,10 +29,10 @@ var (
 	chartURL = fmt.Sprintf("https://giantswarm.github.io/giantswarm-playground-catalog/encryption-config-hasher-%s.tgz", encryptionConfigHasherVersion)
 )
 
-func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context) error {
+func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context, wcClient ctrlclient.Client) error {
 	cm := buildConfigMapValues(s.registryDomain)
 
-	err := s.ctrlClient.Create(ctx, cm)
+	err := wcClient.Create(ctx, cm)
 	if apierrors.IsAlreadyExists(err) {
 		// fall through
 	} else if err != nil {
@@ -40,7 +41,7 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context) error {
 
 	chart := buildAppChart()
 
-	err = s.ctrlClient.Create(ctx, chart)
+	err = wcClient.Create(ctx, chart)
 
 	if apierrors.IsAlreadyExists(err) {
 		// fall through
@@ -51,10 +52,10 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) deleteEncryptionProviderHasherApp(ctx context.Context) error {
+func (s *Service) deleteEncryptionProviderHasherApp(ctx context.Context, wcClient ctrlclient.Client) error {
 	cm := buildConfigMapValues(s.registryDomain)
 
-	err := s.ctrlClient.Delete(ctx, cm)
+	err := wcClient.Delete(ctx, cm)
 	if apierrors.IsNotFound(err) {
 		// fall through
 	} else if err != nil {
@@ -63,7 +64,7 @@ func (s *Service) deleteEncryptionProviderHasherApp(ctx context.Context) error {
 
 	chart := buildAppChart()
 
-	err = s.ctrlClient.Delete(ctx, chart)
+	err = wcClient.Delete(ctx, chart)
 	if apierrors.IsNotFound(err) {
 		// fall through
 	} else if err != nil {

@@ -272,7 +272,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			s.logger.Info("all secrets on the workload cluster has been rewritten with the new encryption key")
 
 			// delete the app that watches the encryption config
-			err = s.deleteEncryptionProviderHasherApp(ctx)
+			err = s.deleteEncryptionProviderHasherApp(ctx, wcClient)
 			if err != nil {
 				s.logger.Error(err, "failed to delete ecnryption-config-hasher app to workload cluster")
 				return err
@@ -333,8 +333,14 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 				return err
 			}
 
+			// get workload cluster k8s client
+			wcClient, err := key.GetWCK8sClient(ctx, s.ctrlClient, clusterName, s.cluster.Namespace)
+			if err != nil {
+				return err
+			}
+
 			// deploy the app that watches the encryption config
-			err = s.deployEncryptionProviderHasherApp(ctx)
+			err = s.deployEncryptionProviderHasherApp(ctx, wcClient)
 			if err != nil {
 				s.logger.Error(err, "failed to deploy encryption-config-hasher app to workload cluster")
 				return err
