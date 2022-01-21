@@ -54,5 +54,6 @@ registry:
 }
 
 func buildChart() chartv1.Chart {
-
+	c := chartv1.Chart{}
+	return c
 }
