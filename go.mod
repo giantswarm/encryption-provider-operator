@@ -14,12 +14,15 @@ require (
 	k8s.io/client-go v0.23.2
 	k8s.io/klog v1.0.0
 	sigs.k8s.io/cluster-api v1.0.2
-	sigs.k8s.io/controller-runtime v0.11.0
+	sigs.k8s.io/controller-runtime v0.10.0
 )
 
 replace (
 	github.com/coreos/etcd v3.3.10+incompatible => github.com/coreos/etcd v3.3.25+incompatible
 	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
+	github.com/go-logr/logr => github.com/go-logr/logr v0.4.0
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/gorilla/websocket v1.4.0 => github.com/gorilla/websocket v1.4.2
+	k8s.io/klog/v2 => k8s.io/klog/v2 v2.10.0
+	sigs.k8s.io/cluster-api => sigs.k8s.io/cluster-api v0.4.5
 )
