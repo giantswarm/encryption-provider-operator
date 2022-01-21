@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	chartv1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	//chartv1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 )
 
 const (
@@ -53,6 +53,6 @@ registry:
 	return cm
 }
 
-//func buildChart() chartv1.Chart {
-//
-//}
+func buildChart() chartv1.Chart {
+
+}
