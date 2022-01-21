@@ -3,6 +3,7 @@ package encryption
 import (
 	"context"
 	"fmt"
+	"gopkg.in/yaml.v2"
 
 	chartv1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
@@ -75,10 +76,19 @@ func (s *Service) deleteEncryptionProviderHasherApp(ctx context.Context, wcClien
 }
 
 func buildConfigMapValues(registryDomain string) *v1.ConfigMap {
-	tmpl := `|
-registry:
-  domain: %s`
-	values := fmt.Sprintf(tmpl, registryDomain)
+	tmpl := struct {
+		Registry struct {
+			Domain string
+		}
+	}{
+		Registry: struct {
+			Domain string
+		}{
+			Domain: registryDomain,
+		},
+	}
+
+	values, _ := yaml.Marshal(&tmpl)
 
 	cm := &v1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -89,10 +99,9 @@ registry:
 			},
 		},
 		Data: map[string]string{
-			"values": values,
+			"values": string(values),
 		},
 	}
-
 	return cm
 }
 
