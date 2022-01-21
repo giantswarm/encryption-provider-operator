@@ -75,20 +75,20 @@ func (s *Service) deleteEncryptionProviderHasherApp(ctx context.Context, wcClien
 	return nil
 }
 
+type Values struct {
+	Registry Registry `yaml:"registry"`
+}
+type Registry struct {
+	Domain string `yaml:"domain"`
+}
+
 func buildConfigMapValues(registryDomain string) *v1.ConfigMap {
-	tmpl := struct {
-		Registry struct {
-			Domain string
-		}
-	}{
-		Registry: struct {
-			Domain string
-		}{
+	val := Values{
+		Registry: Registry{
 			Domain: registryDomain,
 		},
 	}
-
-	values, _ := yaml.Marshal(&tmpl)
+	values, _ := yaml.Marshal(&val)
 
 	cm := &v1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
