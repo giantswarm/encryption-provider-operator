@@ -15,7 +15,7 @@ import (
 
 const (
 	configMapName  = "encryption-config-hasher-chart-values"
-	chartNamespace = "ginatswarm"
+	chartNamespace = "giantswarm"
 
 	appName      = "encryption-config-hasher"
 	appNamespace = "kube-system"

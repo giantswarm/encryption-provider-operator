@@ -353,7 +353,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			}
 
 		} else {
-			s.logger.Info("keys are not %s old, not rotating", s.defaultKeyRotationPeriod.String())
+			s.logger.Info(fmt.Sprintf("keys are not %s old, not rotating", s.defaultKeyRotationPeriod.String()))
 		}
 
 	} else {
