@@ -21,6 +21,7 @@ import (
 	"os"
 	"time"
 
+	chartv1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -41,8 +42,8 @@ var (
 
 func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
-
 	_ = capi.AddToScheme(scheme)
+	_ = chartv1.AddToScheme(scheme)
 	//+kubebuilder:scaffold:scheme
 }
 

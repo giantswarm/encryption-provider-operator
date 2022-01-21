@@ -293,9 +293,12 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 				return err
 			}
 
-			// TODO
 			// delete the app that watches the encryption config
-
+			err = s.deleteEncryptionProviderHasherApp(ctx)
+			if err != nil {
+				s.logger.Error(err, "failed to delete ecnryption-config-hasher app to workload cluster")
+				return err
+			}
 		}
 		// key rotation is not in progress
 		// check if the rotation should be started
@@ -349,8 +352,12 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 				return err
 			}
 
-			// TODO
 			// deploy the app that watches the encryption config
+			err = s.deployEncryptionProviderHasherApp(ctx)
+			if err != nil {
+				s.logger.Error(err, "failed to deploy ecnryption-config-hasher app to workload cluster")
+				return err
+			}
 
 		} else {
 			s.logger.Info("keys are not %s old, not rotating", s.defaultKeyRotationPeriod.String())
@@ -450,8 +457,8 @@ func removeOldEncryptionKey(secret *v1.Secret) error {
 	for _, p := range ec.Resources[0].Providers {
 		if p.Secretbox != nil {
 			keysCount := len(p.Secretbox.Keys)
-			if keysCount > 0 {
-				// remove the last key from the array
+			if keysCount > 1 {
+				// remove the last key from the array only if there are at least 2 keys
 				p.Secretbox.Keys = p.Secretbox.Keys[:keysCount-1]
 			}
 
