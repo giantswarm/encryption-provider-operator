@@ -3,6 +3,7 @@ package encryption
 import (
 	"context"
 	"fmt"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	chartv1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
@@ -31,14 +32,19 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context) error {
 	cm := buildConfigMapValues(s.registryDomain)
 
 	err := s.ctrlClient.Create(ctx, cm)
-	if err != nil {
+	if apierrors.IsAlreadyExists(err) {
+		// fall through
+	} else if err != nil {
 		return err
 	}
 
 	chart := buildAppChart()
 
 	err = s.ctrlClient.Create(ctx, chart)
-	if err != nil {
+
+	if apierrors.IsAlreadyExists(err) {
+		// fall through
+	} else if err != nil {
 		return err
 	}
 
@@ -49,14 +55,18 @@ func (s *Service) deleteEncryptionProviderHasherApp(ctx context.Context) error {
 	cm := buildConfigMapValues(s.registryDomain)
 
 	err := s.ctrlClient.Delete(ctx, cm)
-	if err != nil {
+	if apierrors.IsNotFound(err) {
+		// fall through
+	} else if err != nil {
 		return err
 	}
 
 	chart := buildAppChart()
 
 	err = s.ctrlClient.Delete(ctx, chart)
-	if err != nil {
+	if apierrors.IsNotFound(err) {
+		// fall through
+	} else if err != nil {
 		return err
 	}
 

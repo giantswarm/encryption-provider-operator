@@ -388,6 +388,10 @@ func addNewEncryptionKey(secret *v1.Secret, newEncryptionKey string) error {
 	added := false
 	for _, p := range ec.Resources[0].Providers {
 		if p.Secretbox != nil {
+			if len(p.Secretbox.Keys) > 1 {
+				// there are already 2 keys in the config, dont add another one
+				return nil
+			}
 			i, err := getMaxKeyIndex(p.Secretbox.Keys)
 			if err != nil {
 				return err
