@@ -17,6 +17,8 @@ const (
 	ClusterNameLabel = "cluster.x-k8s.io/cluster-name"
 
 	FinalizerName = "encryption-provider-operator.finalizers.giantswarm.io"
+
+	MasterNodeLabel = "node-role.kubernetes.io/master"
 )
 
 func GetClusterIDFromLabels(t metav1.ObjectMeta) string {

@@ -36,8 +36,6 @@ const (
 
 	EncryptionProviderConfigShake256SecretName      = "encryption-provider-config-shake256"
 	EncryptionProviderConfigShake256SecretNamespace = "kube-system"
-
-	MasterNodeLabel = "node-role.kubernetes.io/master"
 )
 
 type Config struct {
@@ -515,7 +513,7 @@ func (s *Service) countMasterNodesWithLatestConfig(ctx context.Context, wcClient
 	var nodes v1.NodeList
 	err = wcClient.List(ctx,
 		&nodes,
-		ctrlclient.MatchingLabels{MasterNodeLabel: ""})
+		ctrlclient.MatchingLabels{key.MasterNodeLabel: ""})
 	if err != nil {
 		return false, err
 	}
