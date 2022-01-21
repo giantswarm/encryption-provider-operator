@@ -87,6 +87,37 @@ resources:
 `)},
 			},
 		},
+		{
+			name: "case 2: only 1 key in config, nothing should be removed",
+			secret: v1.Secret{
+				Data: map[string][]byte{EncryptionProviderConfig: []byte(`kind: EncryptionConfiguration
+apiVersion: v1
+resources:
+- resources:
+  - secrets
+  providers:
+  - secretbox:
+      keys:
+      - name: key1
+        secret: testkey1
+  - identity: {}
+`)},
+			},
+			expectedSecret: v1.Secret{
+				Data: map[string][]byte{EncryptionProviderConfig: []byte(`kind: EncryptionConfiguration
+apiVersion: v1
+resources:
+- resources:
+  - secrets
+  providers:
+  - secretbox:
+      keys:
+      - name: key1
+        secret: testkey1
+  - identity: {}
+`)},
+			},
+		},
 	}
 
 	for i, tc := range testCases {
