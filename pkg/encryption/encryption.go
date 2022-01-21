@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/go-logr/logr"
 	"golang.org/x/crypto/sha3"
@@ -32,12 +33,6 @@ const (
 	// Poly1305KeyLength represents the 32 bytes length for Poly1305
 	// padding encryption key.
 	Poly1305KeyLength = 32
-
-	AnnotationRotationInProgress = "encryption.giantswarm.io/rotation-in-progress"
-	AnnotationForceRotation      = "encryption.giantswarm.io/force-rotation"
-	AnnotationEnableRotation     = "encryption.giantswarm.io/enable-rotation"
-	AnnotationRewriteTimestamp   = "encryption.giantswarm.io/rewrited-at"
-	AnnotationLastRotation       = "encryption.giantswarm.io/last-rotation"
 
 	EncryptionProviderConfigShake256SecretName      = "encryption-provider-config-shake256"
 	EncryptionProviderConfigShake256SecretNamespace = "kube-system"
@@ -245,7 +240,7 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, cluster
 //
 func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.Secret, clusterName string) error {
 	// check if key rotation is already in progress
-	if _, ok := encryptionProviderSecret.Annotations[AnnotationRotationInProgress]; ok {
+	if _, ok := encryptionProviderSecret.Annotations[annotation.EncryptionRotationInProgress]; ok {
 		/*
 			short description fo what we do here
 			- we get the k8s client to workload cluster
@@ -285,8 +280,8 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			}
 			s.logger.Info("removed old key from the encryption config")
 
-			encryptionProviderSecret.Annotations[AnnotationLastRotation] = time.Now().Format(time.RFC3339)
-			delete(encryptionProviderSecret.Annotations, AnnotationRotationInProgress)
+			encryptionProviderSecret.Annotations[annotation.EncryptionLastRotation] = time.Now().Format(time.RFC3339)
+			delete(encryptionProviderSecret.Annotations, annotation.EncryptionRotationInProgress)
 			err = s.ctrlClient.Update(ctx, &encryptionProviderSecret)
 			if err != nil {
 				s.logger.Error(err, "failed to update encryption provider secret")
@@ -302,10 +297,10 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 		}
 		// key rotation is not in progress
 		// check if the rotation should be started
-	} else if _, ok := encryptionProviderSecret.Annotations[AnnotationEnableRotation]; ok {
+	} else if _, ok := encryptionProviderSecret.Annotations[annotation.EncryptionEnableRotation]; ok {
 		addNewKeyForRotation := false
 
-		if t, ok := encryptionProviderSecret.Annotations[AnnotationLastRotation]; ok {
+		if t, ok := encryptionProviderSecret.Annotations[annotation.EncryptionLastRotation]; ok {
 			lastRotation, err := time.Parse(time.RFC3339, t)
 			if err != nil {
 				s.logger.Error(err, "failed to parse time for last rotation")
@@ -323,7 +318,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 		}
 
 		// check if the key rotation is forced by the annotation
-		if _, ok := encryptionProviderSecret.Annotations[AnnotationForceRotation]; ok {
+		if _, ok := encryptionProviderSecret.Annotations[annotation.EncryptionForceRotation]; ok {
 			addNewKeyForRotation = true
 		}
 
@@ -341,9 +336,9 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			}
 
 			// keys added, set the new phase on the object
-			encryptionProviderSecret.Annotations[AnnotationRotationInProgress] = "yes"
+			encryptionProviderSecret.Annotations[annotation.EncryptionRotationInProgress] = "true"
 			// delete the Force rotation annotation if it exists
-			delete(encryptionProviderSecret.Annotations, AnnotationForceRotation)
+			delete(encryptionProviderSecret.Annotations, annotation.EncryptionForceRotation)
 
 			// update the object
 			err = s.ctrlClient.Update(ctx, &encryptionProviderSecret)
@@ -487,7 +482,7 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 		if allSecrets.Items[i].Annotations == nil {
 			allSecrets.Items[i].Annotations = map[string]string{}
 		}
-		allSecrets.Items[i].Annotations[AnnotationRewriteTimestamp] = timestamp
+		allSecrets.Items[i].Annotations[annotation.EncryptionRewriteTimestamp] = timestamp
 
 		err = wcClient.Update(ctx, &allSecrets.Items[i])
 		if apierrors.IsNotFound(err) {

@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/giantswarm/apiextensions-application v0.3.0
-	github.com/giantswarm/k8smetadata v0.8.0
+	github.com/giantswarm/k8smetadata v0.9.1
 	github.com/go-logr/logr v1.2.2
 	github.com/google/go-cmp v0.5.7
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
