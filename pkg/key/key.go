@@ -11,6 +11,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/clientcmd"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -81,6 +82,7 @@ func GetWCK8sClient(ctx context.Context, ctrlClient client.Client, clusterName s
 
 	scheme := runtime.NewScheme()
 	_ = chartv1.AddToScheme(scheme)
+	_ = clientgoscheme.AddToScheme(scheme)
 
 	wcClient, err := client.New(config, client.Options{Scheme: scheme})
 	if err != nil {
