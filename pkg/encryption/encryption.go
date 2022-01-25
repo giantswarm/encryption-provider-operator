@@ -274,7 +274,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			// delete the app that watches the encryption config
 			err = s.deleteEncryptionProviderHasherApp(ctx, wcClient)
 			if err != nil {
-				s.logger.Error(err, "failed to delete ecnryption-config-hasher app to workload cluster")
+				s.logger.Error(err, "failed to delete encryption-config-hasher app to workload cluster")
 				return err
 			}
 
