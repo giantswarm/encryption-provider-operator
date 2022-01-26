@@ -65,6 +65,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			Cluster:                  cluster,
 			CtrlClient:               r.Client,
 			DefaultKeyRotationPeriod: r.DefaultKeyRotationPeriod,
+			RegistryDomain:           r.RegistryDomain,
 			Logger:                   logger,
 		}
 

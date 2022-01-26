@@ -32,6 +32,7 @@ spec:
         args:
         - --leader-elect
         - --key-rotation-period={{.Values.encryptionProvider.keyRotationPeriod}}
+        - --registry-domain={{ .Values.registry.domain }}
         resources:
           requests:
             cpu: 100m
