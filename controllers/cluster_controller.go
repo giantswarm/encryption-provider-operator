@@ -18,10 +18,10 @@ package controllers
 
 import (
 	"context"
-	"github.com/blang/semver"
-	"github.com/giantswarm/k8smetadata/pkg/label"
 	"time"
 
+	"github.com/blang/semver"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"github.com/giantswarm/microerror"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
