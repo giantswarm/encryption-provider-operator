@@ -36,6 +36,14 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context, wcClien
 
 	err := wcClient.Create(ctx, cm)
 	if apierrors.IsAlreadyExists(err) {
+		// update chart of it already exists
+		err = wcClient.Get(ctx, ctrlclient.ObjectKey{Name: cm.Name, Namespace: cm.Namespace}, cm)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		cm.Data = configMapData(s.registryDomain)
+
 		err = wcClient.Update(ctx, cm)
 		if err != nil {
 			return microerror.Mask(err)
@@ -49,6 +57,13 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context, wcClien
 	err = wcClient.Create(ctx, chart)
 
 	if apierrors.IsAlreadyExists(err) {
+		// update chart of it already exists
+		err = wcClient.Get(ctx, ctrlclient.ObjectKey{Name: chart.Name, Namespace: chart.Namespace}, chart)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+		chart.Spec = chartSpec(s.appCatalog)
+
 		err = wcClient.Update(ctx, chart)
 		if err != nil {
 			return microerror.Mask(err)
@@ -95,13 +110,6 @@ type Registry struct {
 }
 
 func buildConfigMapValues(registryDomain string) *v1.ConfigMap {
-	val := Values{
-		Registry: Registry{
-			Domain: registryDomain,
-		},
-	}
-	values, _ := yaml.Marshal(&val)
-
 	cm := &v1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      configMapName,
@@ -110,11 +118,20 @@ func buildConfigMapValues(registryDomain string) *v1.ConfigMap {
 				label.AppKubernetesName: "encryption-config-hasher",
 			},
 		},
-		Data: map[string]string{
-			"values": string(values),
-		},
+		Data: configMapData(registryDomain),
 	}
 	return cm
+}
+
+func configMapData(registryDomain string) map[string]string {
+	val := Values{
+		Registry: Registry{
+			Domain: registryDomain,
+		},
+	}
+	values, _ := yaml.Marshal(&val)
+
+	return map[string]string{"values": string(values)}
 }
 
 func buildAppChart(appCatalog string) *chartv1.Chart {
@@ -131,18 +148,22 @@ func buildAppChart(appCatalog string) *chartv1.Chart {
 				annotation.ChartOperatorForceHelmUpgrade: "true",
 			},
 		},
-		Spec: chartv1.ChartSpec{
-			Name:      appName,
-			Namespace: appNamespace,
-			Config: chartv1.ChartSpecConfig{
-				ConfigMap: chartv1.ChartSpecConfigConfigMap{
-					Name:      configMapName,
-					Namespace: chartNamespace,
-				},
-			},
-			TarballURL: chartURL(appCatalog),
-			Version:    encryptionConfigHasherVersion,
-		},
+		Spec: chartSpec(appCatalog),
 	}
 	return c
+}
+
+func chartSpec(appCatalog string) chartv1.ChartSpec {
+	return chartv1.ChartSpec{
+		Name:      appName,
+		Namespace: appNamespace,
+		Config: chartv1.ChartSpecConfig{
+			ConfigMap: chartv1.ChartSpecConfigConfigMap{
+				Name:      configMapName,
+				Namespace: chartNamespace,
+			},
+		},
+		TarballURL: chartURL(appCatalog),
+		Version:    encryptionConfigHasherVersion,
+	}
 }
