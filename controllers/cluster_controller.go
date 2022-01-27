@@ -68,6 +68,8 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	// if the cluster CR has a old GS release label we check if the release version is old enought for encryption operator,
 	// otherwise ignore the CR
 	if v, ok := cluster.Annotations[label.ReleaseVersion]; ok {
+		logger.Info(fmt.Sprintf("checking cluster release version %s is older than %s", v, r.FromReleaseVersion))
+
 		version, err := semver.Parse(v)
 		if err != nil {
 			return ctrl.Result{}, microerror.Mask(err)
@@ -83,6 +85,8 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			logger.Info(fmt.Sprintf("cluster is running old release %s which does not support encryption-provider-operaotr, ignoring the CR", v))
 			return ctrl.Result{}, nil
 		}
+	} else {
+		logger.Info("did not found release label on cluster CR, assuming CAPI release")
 	}
 
 	var encryptionService *encryption.Service
