@@ -35,7 +35,10 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context, wcClien
 
 	err := wcClient.Create(ctx, cm)
 	if apierrors.IsAlreadyExists(err) {
-		// fall through
+		err = wcClient.Update(ctx, cm)
+		if err != nil {
+			return err
+		}
 	} else if err != nil {
 		return err
 	}
@@ -45,9 +48,17 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context, wcClien
 	err = wcClient.Create(ctx, chart)
 
 	if apierrors.IsAlreadyExists(err) {
-		// fall through
+		err = wcClient.Update(ctx, chart)
+		if err != nil {
+			return err
+		} else {
+			s.logger.Info(fmt.Sprintf("updated '%s' app in workload cluster", chart.Name))
+		}
+
 	} else if err != nil {
 		return err
+	} else {
+		s.logger.Info(fmt.Sprintf("deployed '%s' app to workload cluster", chart.Name))
 	}
 
 	return nil
