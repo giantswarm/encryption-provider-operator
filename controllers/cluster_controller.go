@@ -67,7 +67,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	// if the cluster CR has a old GS release label we check if the release version is old enought for encryption operator,
 	// otherwise ignore the CR
-	if v, ok := cluster.Annotations[label.ReleaseVersion]; ok {
+	if v, ok := cluster.Labels[label.ReleaseVersion]; ok {
 		logger.Info(fmt.Sprintf("checking cluster release version %s is older than %s", v, r.FromReleaseVersion))
 
 		version, err := semver.Parse(v)
