@@ -21,8 +21,6 @@ import (
 	"os"
 	"time"
 
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	// to ensure that exec-entrypoint and run can make use of them.
 	"k8s.io/apimachinery/pkg/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -43,7 +41,6 @@ var (
 
 func init() {
 	_ = clientgoscheme.AddToScheme(scheme)
-
 	_ = capi.AddToScheme(scheme)
 	//+kubebuilder:scaffold:scheme
 }
@@ -53,13 +50,18 @@ func main() {
 	var enableLeaderElection bool
 	var probeAddr string
 	var keyRotationPeriod time.Duration
+	var registryDomain string
+	var appCatalog string
+	var fromReleaseVersion string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
 	flag.DurationVar(&keyRotationPeriod, "key-rotation-period", time.Hour*24*180, "The default period used for key rotation.")
-
+	flag.StringVar(&registryDomain, "registry-domain", "quay.io", "The domain registry that will be used for encryption-provider-hasher app")
+	flag.StringVar(&appCatalog, "app-catalog", "giantswarm-playground-catalog", "The app catalog for encryption-provider-hasher app")
+	flag.StringVar(&fromReleaseVersion, "from-release-version", "16.3.1", "The release version of cluster from which ")
 	opts := zap.Options{
 		Development: true,
 	}
@@ -82,7 +84,10 @@ func main() {
 	}
 
 	if err = (&controllers.ClusterReconciler{
+		AppCatalog:               appCatalog,
 		DefaultKeyRotationPeriod: keyRotationPeriod,
+		RegistryDomain:           registryDomain,
+		FromReleaseVersion:       fromReleaseVersion,
 		Client:                   mgr.GetClient(),
 		Log:                      ctrl.Log.WithName("controllers"),
 		Scheme:                   mgr.GetScheme(),
