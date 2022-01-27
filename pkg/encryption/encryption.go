@@ -243,12 +243,12 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 	// check if key rotation is already in progress
 	if _, ok := encryptionProviderSecret.Annotations[annotation.EncryptionRotationInProgress]; ok {
 		/*
-			short description fo what we do here
+			short description of what we do here
 			- we get the k8s client to workload cluster
 			- the workload cluster should run app that run pod on each master node
 			and check the encryption config file on host  and save its md5 sum to the secret called EncryptionProviderConfigShake256SecretName
-			this secret will then have md5 check sum fo the file for each master
-			- we fetch teh secret and compare the values of md5 checksum with expected value
+			this secret will then have md5 check sum of the file for each master
+			- we fetch the secret and compare the values of md5 checksum with expected value
 			- this has to match for each master node
 			- in case all master nodes has same new config file we can rewrite all secrets in the workload cluster
 		*/
@@ -258,7 +258,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			return err
 		}
 
-		// calculate md5 checksum of the encryption provider config file
+		// calculate checksum of the encryption provider config file
 		configShakeSum := shake256Sum(encryptionProviderSecret.Data[EncryptionProviderConfig])
 		masterNodesUpToDate, err := s.areAllMasterNodesUsingLatestConfig(ctx, wcClient, configShakeSum)
 		if err != nil {
