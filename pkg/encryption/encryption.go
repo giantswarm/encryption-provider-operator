@@ -39,6 +39,7 @@ const (
 )
 
 type Config struct {
+	AppCatalog               string
 	Cluster                  *capi.Cluster
 	DefaultKeyRotationPeriod time.Duration
 	RegistryDomain           string
@@ -48,6 +49,7 @@ type Config struct {
 }
 
 type Service struct {
+	appCatalog               string
 	cluster                  *capi.Cluster
 	defaultKeyRotationPeriod time.Duration
 	registryDomain           string
@@ -71,6 +73,7 @@ func New(c Config) (*Service, error) {
 	}
 
 	s := &Service{
+		appCatalog:               c.AppCatalog,
 		cluster:                  c.Cluster,
 		registryDomain:           c.RegistryDomain,
 		defaultKeyRotationPeriod: c.DefaultKeyRotationPeriod,
@@ -214,9 +217,9 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, cluster
 			Name:      key.SecretName(clusterName),
 			Namespace: s.cluster.Namespace,
 			Labels: map[string]string{
-				label.Cluster:        clusterName,
-				label.ManagedBy:      project.Name(),
-				key.ClusterNameLabel: clusterName,
+				label.Cluster:         clusterName,
+				label.ManagedBy:       project.Name(),
+				capi.ClusterLabelName: clusterName,
 			},
 		},
 		Data: map[string][]byte{EncryptionProviderConfig: secretData},
@@ -257,7 +260,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 
 		// calculate md5 checksum of the encryption provider config file
 		configShakeSum := shake256Sum(encryptionProviderSecret.Data[EncryptionProviderConfig])
-		masterNodesUpToDate, err := s.countMasterNodesWithLatestConfig(ctx, wcClient, configShakeSum)
+		masterNodesUpToDate, err := s.areAllMasterNodesUsingLatestConfig(ctx, wcClient, configShakeSum)
 		if err != nil {
 			return err
 		}
@@ -502,7 +505,7 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) countMasterNodesWithLatestConfig(ctx context.Context, wcClient ctrlclient.Client, configShake256Sum string) (bool, error) {
+func (s *Service) areAllMasterNodesUsingLatestConfig(ctx context.Context, wcClient ctrlclient.Client, configShake256Sum string) (bool, error) {
 	// get the secret with md5 checksums of the config file
 	var shake256Secret v1.Secret
 	err := wcClient.Get(ctx,

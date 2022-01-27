@@ -26,9 +26,9 @@ const (
 	encryptionConfigHasherVersion = "0.1.1"
 )
 
-var (
-	chartURL = fmt.Sprintf("https://giantswarm.github.io/giantswarm-playground-catalog/encryption-config-hasher-%s.tgz", encryptionConfigHasherVersion)
-)
+func chartURL(appCatalog string) string {
+	return fmt.Sprintf("https://giantswarm.github.io/%s/encryption-config-hasher-%s.tgz", appCatalog, encryptionConfigHasherVersion)
+}
 
 func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context, wcClient ctrlclient.Client) error {
 	cm := buildConfigMapValues(s.registryDomain)
@@ -40,7 +40,7 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context, wcClien
 		return err
 	}
 
-	chart := buildAppChart()
+	chart := buildAppChart(s.appCatalog)
 
 	err = wcClient.Create(ctx, chart)
 
@@ -63,7 +63,7 @@ func (s *Service) deleteEncryptionProviderHasherApp(ctx context.Context, wcClien
 		return err
 	}
 
-	chart := buildAppChart()
+	chart := buildAppChart(s.appCatalog)
 
 	err = wcClient.Delete(ctx, chart)
 	if apierrors.IsNotFound(err) {
@@ -105,7 +105,7 @@ func buildConfigMapValues(registryDomain string) *v1.ConfigMap {
 	return cm
 }
 
-func buildAppChart() *chartv1.Chart {
+func buildAppChart(appCatalog string) *chartv1.Chart {
 	c := &chartv1.Chart{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      appName,
@@ -128,7 +128,7 @@ func buildAppChart() *chartv1.Chart {
 					Namespace: chartNamespace,
 				},
 			},
-			TarballURL: chartURL,
+			TarballURL: chartURL(appCatalog),
 			Version:    encryptionConfigHasherVersion,
 		},
 	}

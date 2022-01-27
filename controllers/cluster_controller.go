@@ -33,6 +33,7 @@ import (
 
 // ClusterReconciler reconciles a Cluster object
 type ClusterReconciler struct {
+	AppCatalog               string
 	DefaultKeyRotationPeriod time.Duration
 	RegistryDomain           string
 
@@ -62,6 +63,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	var encryptionService *encryption.Service
 	{
 		c := encryption.Config{
+			AppCatalog:               r.AppCatalog,
 			Cluster:                  cluster,
 			CtrlClient:               r.Client,
 			DefaultKeyRotationPeriod: r.DefaultKeyRotationPeriod,
