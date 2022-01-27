@@ -141,7 +141,7 @@ func Test_addNewEncryptionKey(t *testing.T) {
 		expectedSecret v1.Secret
 	}{
 		{
-			name: "case 0: add new key to config with secretbox provide",
+			name: "case 0: add new key to config with secretbox provider",
 			secret: v1.Secret{
 				Data: map[string][]byte{EncryptionProviderConfig: []byte(`kind: EncryptionConfiguration
 apiVersion: v1
