@@ -52,6 +52,7 @@ func main() {
 	var keyRotationPeriod time.Duration
 	var registryDomain string
 	var appCatalog string
+	var fromReleaseVersion string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -60,7 +61,7 @@ func main() {
 	flag.DurationVar(&keyRotationPeriod, "key-rotation-period", time.Hour*24*180, "The default period used for key rotation.")
 	flag.StringVar(&registryDomain, "registry-domain", "quay.io", "The domain registry that will be used for encryption-provider-hasher app")
 	flag.StringVar(&appCatalog, "app-catalog", "giantswarm-playground-catalog", "The app catalog for encryption-provider-hasher app")
-
+	flag.StringVar(&fromReleaseVersion, "from-release-version", "v16.3.1", "The release version of cluster from which ")
 	opts := zap.Options{
 		Development: true,
 	}
@@ -86,6 +87,7 @@ func main() {
 		AppCatalog:               appCatalog,
 		DefaultKeyRotationPeriod: keyRotationPeriod,
 		RegistryDomain:           registryDomain,
+		FromReleaseVersion:       fromReleaseVersion,
 		Client:                   mgr.GetClient(),
 		Log:                      ctrl.Log.WithName("controllers"),
 		Scheme:                   mgr.GetScheme(),

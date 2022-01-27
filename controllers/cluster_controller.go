@@ -18,6 +18,8 @@ package controllers
 
 import (
 	"context"
+	"github.com/blang/semver"
+	"github.com/giantswarm/k8smetadata/pkg/label"
 	"time"
 
 	"github.com/giantswarm/microerror"
@@ -37,6 +39,7 @@ type ClusterReconciler struct {
 	AppCatalog               string
 	DefaultKeyRotationPeriod time.Duration
 	RegistryDomain           string
+	FromReleaseVersion       string
 
 	client.Client
 	Log    logr.Logger
@@ -59,6 +62,25 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	if err := r.Get(ctx, req.NamespacedName, cluster); err != nil {
 		logger.Error(err, "Cluster does not exist")
 		return ctrl.Result{}, microerror.Mask(err)
+	}
+
+	// if the cluster CR has a old GS release label we check if the release version is old enought for encryption operator,
+	// otherwise ignore the CR
+	if v, ok := cluster.Annotations[label.ReleaseVersion]; ok {
+		version, err := semver.Parse(v)
+		if err != nil {
+			return ctrl.Result{}, microerror.Mask(err)
+		}
+
+		fromRelease, err := semver.Parse(r.FromReleaseVersion)
+		if err != nil {
+			return ctrl.Result{}, microerror.Mask(err)
+		}
+
+		if version.LT(fromRelease) {
+			// release is older than supported version, ignore the CR
+			return ctrl.Result{}, nil
+		}
 	}
 
 	var encryptionService *encryption.Service
