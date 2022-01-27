@@ -12,6 +12,7 @@ import (
 
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
+	"github.com/giantswarm/microerror"
 	"github.com/go-logr/logr"
 	"golang.org/x/crypto/sha3"
 	"gopkg.in/yaml.v2"
@@ -103,7 +104,7 @@ func (s *Service) Reconcile() error {
 		err := s.createNewEncryptionProviderSecret(ctx, clusterName)
 		if err != nil {
 			s.logger.Error(err, "failed to get encryption provider config secret for cluster")
-			return err
+			return microerror.Mask(err)
 		}
 	} else if err != nil {
 		s.logger.Error(err, "failed to get encryption provider config secret for cluster")
@@ -112,7 +113,7 @@ func (s *Service) Reconcile() error {
 		// config already exists, check for key rotation
 		err = s.keyRotation(ctx, encryptionProviderSecret, clusterName)
 		if err != nil {
-			return err
+			return microerror.Mask(err)
 		}
 	}
 	return nil
@@ -136,13 +137,13 @@ func (s *Service) Delete() error {
 		return nil
 	} else if err != nil {
 		s.logger.Error(err, "failed to delete encryption provider config secret for cluster")
-		return err
+		return microerror.Mask(err)
 	}
 
 	err = key.CleanWCK8sKubeconfig(clusterName)
 	if err != nil {
 		s.logger.Error(err, fmt.Sprintf("failed to delete local kubeconfig file for cluster %s", clusterName))
-		return err
+		return microerror.Mask(err)
 	}
 
 	return nil
@@ -166,7 +167,7 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, cluster
 		newKey, err := newRandomKey(Poly1305KeyLength)
 		if err != nil {
 			s.logger.Error(err, "failed to generate new random key for encryption")
-			return err
+			return microerror.Mask(err)
 		}
 		s.logger.Info("generated a new encryption key for Poly1305 encryption provider")
 
@@ -183,12 +184,12 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, cluster
 		encryptionConfig = initNewEncryptionConfigStruct(providerConfig)
 	} else if err != nil {
 		s.logger.Error(err, "failed to get old encryption provider key secret")
-		return err
+		return microerror.Mask(err)
 	} else {
 		// there is an old encryption key so lets reuse it to avoid breaking cluster
 		if k, ok := oldEncryptionSecret.Data["encryption"]; !ok {
 			s.logger.Error(err, "failed to get encryption key from secret")
-			return err
+			return microerror.Mask(err)
 		} else {
 			// the old encryption key are using old less secure type
 			// https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#providers
@@ -228,7 +229,7 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, cluster
 	err = s.ctrlClient.Create(ctx, encryptionProviderSecret)
 	if err != nil {
 		s.logger.Error(err, "failed to create encryption provider secret")
-		return err
+		return microerror.Mask(err)
 	}
 
 	s.logger.Info("created a new encryption provider config secret")
@@ -255,14 +256,14 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 		// get workload cluster k8s client
 		wcClient, err := key.GetWCK8sClient(ctx, s.ctrlClient, clusterName, s.cluster.Namespace)
 		if err != nil {
-			return err
+			return microerror.Mask(err)
 		}
 
 		// calculate checksum of the encryption provider config file
 		configShakeSum := shake256Sum(encryptionProviderSecret.Data[EncryptionProviderConfig])
 		masterNodesUpToDate, err := s.areAllMasterNodesUsingLatestConfig(ctx, wcClient, configShakeSum)
 		if err != nil {
-			return err
+			return microerror.Mask(err)
 		}
 
 		if masterNodesUpToDate {
@@ -278,7 +279,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			err = s.deleteEncryptionProviderHasherApp(ctx, wcClient)
 			if err != nil {
 				s.logger.Error(err, "failed to delete encryption-config-hasher app to workload cluster")
-				return err
+				return microerror.Mask(err)
 			}
 
 			err = removeOldEncryptionKey(&encryptionProviderSecret)
@@ -293,7 +294,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			err = s.ctrlClient.Update(ctx, &encryptionProviderSecret)
 			if err != nil {
 				s.logger.Error(err, "failed to update encryption provider secret")
-				return err
+				return microerror.Mask(err)
 			}
 		}
 		// key rotation is not in progress
@@ -305,7 +306,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			lastRotation, err := time.Parse(time.RFC3339, t)
 			if err != nil {
 				s.logger.Error(err, "failed to parse time for last rotation")
-				return err
+				return microerror.Mask(err)
 			}
 
 			if time.Since(lastRotation) > s.defaultKeyRotationPeriod {
@@ -328,25 +329,25 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			newKey, err := newRandomKey(Poly1305KeyLength)
 			if err != nil {
 				s.logger.Error(err, "failed to generate new encryption key")
-				return err
+				return microerror.Mask(err)
 			}
 			err = addNewEncryptionKey(&encryptionProviderSecret, newKey)
 			if err != nil {
 				s.logger.Error(err, "failed to add new encryption key to the configuration secret")
-				return err
+				return microerror.Mask(err)
 			}
 
 			// get workload cluster k8s client
 			wcClient, err := key.GetWCK8sClient(ctx, s.ctrlClient, clusterName, s.cluster.Namespace)
 			if err != nil {
-				return err
+				return microerror.Mask(err)
 			}
 
 			// deploy the app that watches the encryption config
 			err = s.deployEncryptionProviderHasherApp(ctx, wcClient)
 			if err != nil {
 				s.logger.Error(err, "failed to deploy encryption-config-hasher app to workload cluster")
-				return err
+				return microerror.Mask(err)
 			}
 
 			// keys added, set the new phase on the object
@@ -358,7 +359,7 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 			err = s.ctrlClient.Update(ctx, &encryptionProviderSecret)
 			if err != nil {
 				s.logger.Error(err, "failed to update encryption provider secret")
-				return err
+				return microerror.Mask(err)
 			}
 
 		} else {
@@ -378,7 +379,7 @@ func newRandomKey(length int) (string, error) {
 
 	_, err := rand.Read(randomKey)
 	if err != nil {
-		return "", err
+		return "", microerror.Mask(err)
 	}
 
 	return base64.StdEncoding.EncodeToString(randomKey), nil
@@ -391,7 +392,7 @@ func addNewEncryptionKey(secret *v1.Secret, newEncryptionKey string) error {
 	var ec configv1.EncryptionConfiguration
 	err := yaml.Unmarshal(secret.Data[EncryptionProviderConfig], &ec)
 	if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	added := false
@@ -403,7 +404,7 @@ func addNewEncryptionKey(secret *v1.Secret, newEncryptionKey string) error {
 			}
 			i, err := getMaxKeyIndex(p.Secretbox.Keys)
 			if err != nil {
-				return err
+				return microerror.Mask(err)
 			}
 			// secretbox configuration exists add a new key at the start of the array
 			p.Secretbox.Keys = append([]configv1.Key{{Secret: newEncryptionKey, Name: keyName(i + 1)}}, p.Secretbox.Keys...)
@@ -429,7 +430,7 @@ func addNewEncryptionKey(secret *v1.Secret, newEncryptionKey string) error {
 
 	o, err := yaml.Marshal(ec)
 	if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 	secret.Data[EncryptionProviderConfig] = o
 	return nil
@@ -441,7 +442,7 @@ func removeOldEncryptionKey(secret *v1.Secret) error {
 	var ec configv1.EncryptionConfiguration
 	err := yaml.Unmarshal(secret.Data[EncryptionProviderConfig], &ec)
 	if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	// try to remove legacy aescbc provider if present
@@ -452,7 +453,7 @@ func removeOldEncryptionKey(secret *v1.Secret) error {
 
 			o, err := yaml.Marshal(ec)
 			if err != nil {
-				return err
+				return microerror.Mask(err)
 			}
 			secret.Data[EncryptionProviderConfig] = o
 			return nil
@@ -470,7 +471,7 @@ func removeOldEncryptionKey(secret *v1.Secret) error {
 
 			o, err := yaml.Marshal(ec)
 			if err != nil {
-				return err
+				return microerror.Mask(err)
 			}
 			secret.Data[EncryptionProviderConfig] = o
 		}
@@ -484,7 +485,7 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 	var allSecrets v1.SecretList
 	err := wcClient.List(ctx, &allSecrets)
 	if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	timestamp := time.Now().Format(time.RFC3339)
@@ -499,7 +500,7 @@ func rewriteAllSecrets(wcClient ctrlclient.Client, ctx context.Context) error {
 		if apierrors.IsNotFound(err) {
 			// secret was deleted just ignore and fall thru
 		} else if err != nil {
-			return err
+			return microerror.Mask(err)
 		}
 	}
 	return nil
@@ -519,7 +520,7 @@ func (s *Service) areAllMasterNodesUsingLatestConfig(ctx context.Context, wcClie
 		s.logger.Info(fmt.Sprintf("secret %s do not exists yet on the workload cluster", EncryptionProviderConfigShake256SecretName))
 		return false, nil
 	} else if err != nil {
-		return false, err
+		return false, microerror.Mask(err)
 	}
 
 	// get all master nodes
@@ -528,7 +529,7 @@ func (s *Service) areAllMasterNodesUsingLatestConfig(ctx context.Context, wcClie
 		&nodes,
 		ctrlclient.MatchingLabels{key.MasterNodeLabel: ""})
 	if err != nil {
-		return false, err
+		return false, microerror.Mask(err)
 	}
 
 	nodeCount := len(nodes.Items)
@@ -582,7 +583,7 @@ func getMaxKeyIndex(keys []configv1.Key) (int, error) {
 	for _, k := range keys {
 		i, err := getKeyIndex(k)
 		if err != nil {
-			return 0, err
+			return 0, microerror.Mask(err)
 		}
 		if i > index {
 			index = i
@@ -595,7 +596,7 @@ func getKeyIndex(key configv1.Key) (int, error) {
 	keyIndex := strings.TrimPrefix(key.Name, KeyNamePrefix)
 	i, err := strconv.Atoi(keyIndex)
 	if err != nil {
-		return 0, err
+		return 0, microerror.Mask(err)
 	}
 
 	return i, nil

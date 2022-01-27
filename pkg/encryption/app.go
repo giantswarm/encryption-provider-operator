@@ -7,6 +7,7 @@ import (
 	chartv1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
 	"github.com/giantswarm/k8smetadata/pkg/annotation"
 	"github.com/giantswarm/k8smetadata/pkg/label"
+	"github.com/giantswarm/microerror"
 	"gopkg.in/yaml.v2"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -37,10 +38,10 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context, wcClien
 	if apierrors.IsAlreadyExists(err) {
 		err = wcClient.Update(ctx, cm)
 		if err != nil {
-			return err
+			return microerror.Mask(err)
 		}
 	} else if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	chart := buildAppChart(s.appCatalog)
@@ -50,13 +51,13 @@ func (s *Service) deployEncryptionProviderHasherApp(ctx context.Context, wcClien
 	if apierrors.IsAlreadyExists(err) {
 		err = wcClient.Update(ctx, chart)
 		if err != nil {
-			return err
+			return microerror.Mask(err)
 		} else {
 			s.logger.Info(fmt.Sprintf("updated '%s' app in workload cluster", chart.Name))
 		}
 
 	} else if err != nil {
-		return err
+		return microerror.Mask(err)
 	} else {
 		s.logger.Info(fmt.Sprintf("deployed '%s' app to workload cluster", chart.Name))
 	}
@@ -71,7 +72,7 @@ func (s *Service) deleteEncryptionProviderHasherApp(ctx context.Context, wcClien
 	if apierrors.IsNotFound(err) {
 		// fall through
 	} else if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	chart := buildAppChart(s.appCatalog)
@@ -80,7 +81,7 @@ func (s *Service) deleteEncryptionProviderHasherApp(ctx context.Context, wcClien
 	if apierrors.IsNotFound(err) {
 		// fall through
 	} else if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	return nil

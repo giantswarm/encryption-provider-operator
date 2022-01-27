@@ -20,6 +20,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/giantswarm/microerror"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
@@ -57,7 +58,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	cluster := &capi.Cluster{}
 	if err := r.Get(ctx, req.NamespacedName, cluster); err != nil {
 		logger.Error(err, "Cluster does not exist")
-		return ctrl.Result{}, err
+		return ctrl.Result{}, microerror.Mask(err)
 	}
 
 	var encryptionService *encryption.Service
@@ -74,7 +75,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		encryptionService, err = encryption.New(c)
 		if err != nil {
 			logger.Error(err, "failed to create encryption service")
-			return ctrl.Result{}, err
+			return ctrl.Result{}, microerror.Mask(err)
 		}
 	}
 
@@ -83,14 +84,14 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		err = encryptionService.Delete()
 		if err != nil {
 			logger.Error(err, "failed to clean resources")
-			return ctrl.Result{}, err
+			return ctrl.Result{}, microerror.Mask(err)
 		}
 		// remove finalizer from Cluster
 		controllerutil.RemoveFinalizer(cluster, key.FinalizerName)
 		err = r.Update(ctx, cluster)
 		if err != nil {
 			logger.Error(err, "failed to remove finalizer on Cluster CR")
-			return ctrl.Result{}, err
+			return ctrl.Result{}, microerror.Mask(err)
 		}
 		// resource was cleaned up, we dont need to reconcile again
 		return ctrl.Result{}, nil
@@ -100,7 +101,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		err = encryptionService.Reconcile()
 		if err != nil {
 			logger.Error(err, "failed to reconcile resource")
-			return ctrl.Result{}, err
+			return ctrl.Result{}, microerror.Mask(err)
 		}
 
 		// add finalizer to AWSMachineTemplate
@@ -108,7 +109,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		err = r.Update(ctx, cluster)
 		if err != nil {
 			logger.Error(err, "failed to add finalizer on Cluster CR")
-			return ctrl.Result{}, err
+			return ctrl.Result{}, microerror.Mask(err)
 		}
 	}
 

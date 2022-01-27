@@ -7,6 +7,7 @@ import (
 	"os"
 
 	chartv1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
+	"github.com/giantswarm/microerror"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -45,23 +46,23 @@ func GetWCK8sClient(ctx context.Context, ctrlClient client.Client, clusterName s
 			},
 				&secret)
 			if err != nil {
-				return nil, err
+				return nil, microerror.Mask(err)
 			}
 			kubeconfig = secret.Data["kubeConfig"]
 		} else if err != nil {
-			return nil, err
+			return nil, microerror.Mask(err)
 		} else {
 			kubeconfig = secret.Data["value"]
 		}
 	}
 	err = ioutil.WriteFile(tempKubeconfigFileName(clusterName), kubeconfig, 0600)
 	if err != nil {
-		return nil, err
+		return nil, microerror.Mask(err)
 	}
 
 	config, err := clientcmd.BuildConfigFromFlags("", tempKubeconfigFileName(clusterName))
 	if err != nil {
-		return nil, err
+		return nil, microerror.Mask(err)
 	}
 
 	scheme := runtime.NewScheme()
@@ -70,7 +71,7 @@ func GetWCK8sClient(ctx context.Context, ctrlClient client.Client, clusterName s
 
 	wcClient, err := client.New(config, client.Options{Scheme: scheme})
 	if err != nil {
-		return nil, err
+		return nil, microerror.Mask(err)
 	}
 
 	return wcClient, nil
@@ -82,7 +83,7 @@ func CleanWCK8sKubeconfig(clusterName string) error {
 	if os.IsNotExist(err) {
 		// we ignore if the file is already deleted
 	} else if err != nil {
-		return err
+		return microerror.Mask(err)
 	}
 
 	return nil
