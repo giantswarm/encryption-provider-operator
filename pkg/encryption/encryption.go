@@ -296,6 +296,12 @@ func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.S
 				s.logger.Error(err, "failed to update encryption provider secret")
 				return microerror.Mask(err)
 			}
+		} else {
+			// update the chart app in case there has been a change
+			err = s.deployEncryptionProviderHasherApp(ctx, wcClient)
+			if err != nil {
+				return microerror.Mask(err)
+			}
 		}
 		// key rotation is not in progress
 		// check if the rotation should be started

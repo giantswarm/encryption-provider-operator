@@ -83,6 +83,7 @@ func main() {
 	}
 
 	if err = (&controllers.ClusterReconciler{
+		AppCatalog:               appCatalog,
 		DefaultKeyRotationPeriod: keyRotationPeriod,
 		RegistryDomain:           registryDomain,
 		Client:                   mgr.GetClient(),
