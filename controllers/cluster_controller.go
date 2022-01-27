@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/blang/semver"
@@ -79,6 +80,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 		if version.LT(fromRelease) {
 			// release is older than supported version, ignore the CR
+			logger.Info(fmt.Sprintf("cluster is running old release %s which does not support encryption-provider-operaotr, ignoring the CR", v))
 			return ctrl.Result{}, nil
 		}
 	}
