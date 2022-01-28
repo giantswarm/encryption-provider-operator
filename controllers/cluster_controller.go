@@ -78,7 +78,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			return ctrl.Result{}, microerror.Mask(err)
 		}
 
-		if version.LT(fromRelease) {
+		if !version.GTE(fromRelease) {
 			// release is older than supported version, ignore the CR
 			logger.Info(fmt.Sprintf("cluster is running old release %s which does not support encryption-provider-operaotr, ignoring the CR", v))
 			return ctrl.Result{}, nil
