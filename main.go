@@ -61,7 +61,7 @@ func main() {
 	flag.DurationVar(&keyRotationPeriod, "key-rotation-period", time.Hour*24*180, "The default period used for key rotation.")
 	flag.StringVar(&registryDomain, "registry-domain", "quay.io", "The domain registry that will be used for encryption-provider-hasher app")
 	flag.StringVar(&appCatalog, "app-catalog", "giantswarm-playground-catalog", "The app catalog for encryption-provider-hasher app")
-	flag.StringVar(&fromReleaseVersion, "from-release-version", "16.4.0", "The release version of cluster from which ")
+	flag.StringVar(&fromReleaseVersion, "from-release-version", "16.4.0", "The release version of cluster from which operator will reconcile CRs, If its missing it will assume CAPI release and reconcile as well.")
 	opts := zap.Options{
 		Development: true,
 	}
