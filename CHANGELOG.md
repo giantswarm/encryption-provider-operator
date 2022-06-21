@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2022-06-21
+
 ### Changed
 
 - Bump `encryption-config-hasher` to 0.1.2.
@@ -30,7 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add main reconciliation loop logic.
 - Implement key rotation logic.
 
-[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/giantswarm/giantswarm/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/giantswarm/giantswarm/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/giantswarm/giantswarm/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/giantswarm/encryption-provider-operator/releases/tag/v0.1.0
