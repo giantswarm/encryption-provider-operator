@@ -9,7 +9,7 @@ registry:
 
 encryptionProvider:
   keyRotationPeriod: 4320h
-  fromRelase: 16.3.999
+  fromRelease: 16.3.999
 
 pod:
   user:

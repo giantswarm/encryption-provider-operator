@@ -33,7 +33,7 @@ spec:
         - --leader-elect
         - --key-rotation-period={{.Values.encryptionProvider.keyRotationPeriod}}
         - --registry-domain={{ .Values.registry.domain }}
-        - --from-release-version={{.Values.encryptionProvider.fromRelase}}
+        - --from-release-version={{.Values.encryptionProvider.fromRelease}}
         resources:
           requests:
             cpu: 150m
