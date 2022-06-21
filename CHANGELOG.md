@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix typo in helm values (`fromRelase` became `fromRelease`).
+
 ## [0.2.0] - 2022-06-14
 
 ### Changed
