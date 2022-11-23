@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Force go module to use `golang.org/x/text v0.3.8` to fix `CVE-2022-32149`.
+
 ## [0.2.3] - 2022-08-05
 
 ## [0.2.2] - 2022-06-21
