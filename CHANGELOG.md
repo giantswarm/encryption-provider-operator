@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2023-01-31
+
 ### Changed
 
 - Upgrade CAPI dependency to `v1.2.7` and use `v1beta1` CAPI CRDs.
@@ -42,7 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add main reconciliation loop logic.
 - Implement key rotation logic.
 
-[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/giantswarm/giantswarm/compare/v0.2.3...v0.3.0
 [0.2.3]: https://github.com/giantswarm/giantswarm/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/giantswarm/giantswarm/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/giantswarm/giantswarm/compare/v0.2.0...v0.2.1
