@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade CAPI dependency to `v1.2.7` and use `v1beta1` CAPI CRDs.
+
 ### Fixed
 
 - Force go module to use `golang.org/x/text v0.3.8` to fix `CVE-2022-32149`.
