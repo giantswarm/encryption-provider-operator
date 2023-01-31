@@ -26,7 +26,7 @@ import (
 	"github.com/giantswarm/microerror"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -47,9 +47,9 @@ type ClusterReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=cluster.x-k8s.io,resources=cluster,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=cluster.x-k8s.io,resources=cluster/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=cluster.x-k8s.io,resources=cluster/finalizers,verbs=update
+// +kubebuilder:rbac:groups=cluster.x-k8s.io,resources=cluster,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=cluster.x-k8s.io,resources=cluster/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=cluster.x-k8s.io,resources=cluster/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

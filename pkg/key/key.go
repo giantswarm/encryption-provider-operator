@@ -3,7 +3,6 @@ package key
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	chartv1 "github.com/giantswarm/apiextensions-application/api/v1alpha1"
@@ -55,7 +54,7 @@ func GetWCK8sClient(ctx context.Context, ctrlClient client.Client, clusterName s
 			kubeconfig = secret.Data["value"]
 		}
 	}
-	err = ioutil.WriteFile(tempKubeconfigFileName(clusterName), kubeconfig, 0600)
+	err = os.WriteFile(tempKubeconfigFileName(clusterName), kubeconfig, 0600)
 	if err != nil {
 		return nil, microerror.Mask(err)
 	}

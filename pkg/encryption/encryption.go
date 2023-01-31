@@ -19,7 +19,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	capi "sigs.k8s.io/cluster-api/api/v1alpha3"
+	capi "sigs.k8s.io/cluster-api/api/v1beta1"
 	ctrlclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	configv1 "github.com/giantswarm/encryption-provider-operator/pkg/config"
@@ -66,11 +66,8 @@ func New(c Config) (*Service, error) {
 	if c.CtrlClient == nil {
 		return nil, errors.New("ctrlClient cannot be nil")
 	}
-	if c.RegistryDomain == "nil" {
+	if c.RegistryDomain == "" {
 		return nil, errors.New("RegistryDomain cannot be empty")
-	}
-	if c.Logger == nil {
-		return nil, errors.New("logger cannot be nil")
 	}
 
 	s := &Service{
@@ -87,21 +84,16 @@ func New(c Config) (*Service, error) {
 
 func (s *Service) Reconcile() error {
 	ctx := context.TODO()
-	clusterName := s.cluster.ClusterName
-	if clusterName == "" {
-		clusterName = s.cluster.Name
-	}
-
 	var encryptionProviderSecret v1.Secret
 
 	err := s.ctrlClient.Get(ctx, ctrlclient.ObjectKey{
-		Name:      key.SecretName(clusterName),
+		Name:      key.SecretName(s.cluster.Name),
 		Namespace: s.cluster.Namespace,
 	}, &encryptionProviderSecret)
 
 	if apierrors.IsNotFound(err) {
 		// create new encryption secret
-		err := s.createNewEncryptionProviderSecret(ctx, clusterName)
+		err := s.createNewEncryptionProviderSecret(ctx, s.cluster.Name)
 		if err != nil {
 			s.logger.Error(err, "failed to get encryption provider config secret for cluster")
 			return microerror.Mask(err)
@@ -111,7 +103,7 @@ func (s *Service) Reconcile() error {
 		return err
 	} else {
 		// config already exists, check for key rotation
-		err = s.keyRotation(ctx, encryptionProviderSecret, clusterName)
+		err = s.keyRotation(ctx, encryptionProviderSecret, s.cluster.Name)
 		if err != nil {
 			return microerror.Mask(err)
 		}
@@ -121,13 +113,9 @@ func (s *Service) Reconcile() error {
 
 func (s *Service) Delete() error {
 	ctx := context.TODO()
-	clusterName := s.cluster.ClusterName
-	if clusterName == "" {
-		clusterName = s.cluster.Name
-	}
 	encryptionProviderSecret := v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      key.SecretName(clusterName),
+			Name:      key.SecretName(s.cluster.Name),
 			Namespace: s.cluster.Namespace,
 		}}
 
@@ -140,9 +128,9 @@ func (s *Service) Delete() error {
 		return microerror.Mask(err)
 	}
 
-	err = key.CleanWCK8sKubeconfig(clusterName)
+	err = key.CleanWCK8sKubeconfig(s.cluster.Name)
 	if err != nil {
-		s.logger.Error(err, fmt.Sprintf("failed to delete local kubeconfig file for cluster %s", clusterName))
+		s.logger.Error(err, fmt.Sprintf("failed to delete local kubeconfig file for cluster %s", s.cluster.Name))
 		return microerror.Mask(err)
 	}
 
@@ -239,7 +227,6 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, cluster
 
 // keyRotation will handle encryption key rotation in case the configured time period elapsed
 // the controller needs to handle several phases of the rotation as it is require roll of the master nodes and rewriting all the secrets
-//
 func (s *Service) keyRotation(ctx context.Context, encryptionProviderSecret v1.Secret, clusterName string) error {
 	// check if key rotation is already in progress
 	if _, ok := encryptionProviderSecret.Annotations[annotation.EncryptionRotationInProgress]; ok {
