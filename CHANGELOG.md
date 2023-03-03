@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add the use of the runtime/default seccomp profile.
+- Add the use of the runtime/default seccomp profile. Allow required volume types in PSP so that pods can still be admitted.
 
 ## [0.3.0] - 2023-01-31
 
