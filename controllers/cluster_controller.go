@@ -130,7 +130,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	} else {
 		// add finalizer to AWSMachineTemplate
 		controllerutil.AddFinalizer(cluster, key.FinalizerName)
-		patchHelper.Patch(ctx, cluster)
+		err = patchHelper.Patch(ctx, cluster)
 		if err != nil {
 			logger.Error(err, "failed to add finalizer on Cluster CR")
 			return ctrl.Result{}, microerror.Mask(err)
