@@ -27,6 +27,7 @@ import (
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
 	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/util/patch"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -104,6 +105,10 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			return ctrl.Result{}, microerror.Mask(err)
 		}
 	}
+	patchHelper, err := patch.NewHelper(cluster, r.Client)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
 
 	if cluster.DeletionTimestamp != nil {
 		// clean
@@ -114,7 +119,7 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		}
 		// remove finalizer from Cluster
 		controllerutil.RemoveFinalizer(cluster, key.FinalizerName)
-		err = r.Update(ctx, cluster)
+		err = patchHelper.Patch(ctx, cluster)
 		if err != nil {
 			logger.Error(err, "failed to remove finalizer on Cluster CR")
 			return ctrl.Result{}, microerror.Mask(err)
@@ -123,18 +128,18 @@ func (r *ClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 
 	} else {
+		// add finalizer to AWSMachineTemplate
+		controllerutil.AddFinalizer(cluster, key.FinalizerName)
+		err = patchHelper.Patch(ctx, cluster)
+		if err != nil {
+			logger.Error(err, "failed to add finalizer on Cluster CR")
+			return ctrl.Result{}, microerror.Mask(err)
+		}
+
 		// reconcile
 		err = encryptionService.Reconcile()
 		if err != nil {
 			logger.Error(err, "failed to reconcile resource")
-			return ctrl.Result{}, microerror.Mask(err)
-		}
-
-		// add finalizer to AWSMachineTemplate
-		controllerutil.AddFinalizer(cluster, key.FinalizerName)
-		err = r.Update(ctx, cluster)
-		if err != nil {
-			logger.Error(err, "failed to add finalizer on Cluster CR")
 			return ctrl.Result{}, microerror.Mask(err)
 		}
 	}

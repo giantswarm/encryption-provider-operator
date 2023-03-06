@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Add finalizer before reconciliation
+- Use patch to add/remove finalizers insted of update
+
 ## [0.3.1] - 2023-03-03
 
 ### Added
