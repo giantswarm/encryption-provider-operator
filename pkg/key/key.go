@@ -17,9 +17,12 @@ import (
 
 const (
 	FinalizerName = "encryption-provider-operator.finalizers.giantswarm.io"
-
-	MasterNodeLabel = "node-role.kubernetes.io/master"
 )
+
+var MasterNodeLabels = []string{
+	"node-role.kubernetes.io/master",
+	"node-role.kubernetes.io/control-plane",
+}
 
 func SecretName(clusterName string) string {
 	return fmt.Sprintf("%s-encryption-provider-config", clusterName)

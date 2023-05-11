@@ -518,16 +518,21 @@ func (s *Service) areAllMasterNodesUsingLatestConfig(ctx context.Context, wcClie
 		return false, microerror.Mask(err)
 	}
 
-	// get all master nodes
-	var nodes v1.NodeList
-	err = wcClient.List(ctx,
-		&nodes,
-		ctrlclient.MatchingLabels{key.MasterNodeLabel: ""})
-	if err != nil {
-		return false, microerror.Mask(err)
+	// get all master nodeItems
+	nodeItems := []v1.Node{}
+	for _, label := range key.MasterNodeLabels {
+		var tmpNodes v1.NodeList
+		err = wcClient.List(ctx,
+			&tmpNodes,
+			ctrlclient.MatchingLabels{label: ""},
+		)
+		if err != nil {
+			return false, microerror.Mask(err)
+		}
+		nodeItems = append(nodeItems, tmpNodes.Items...)
 	}
 
-	nodeCount := len(nodes.Items)
+	nodeCount := len(nodeItems)
 	if nodeCount != 1 && nodeCount != 3 && nodeCount != 5 {
 		err = errors.New("unexpected number of master nodes, cluster is probably in transiting state")
 		s.logger.Error(err, fmt.Sprintf("expected 1 or 3 or 5 master nodes but found %d", nodeCount))
@@ -535,7 +540,7 @@ func (s *Service) areAllMasterNodesUsingLatestConfig(ctx context.Context, wcClie
 	}
 
 	masterNodeWithLatestConfig := 0
-	for _, n := range nodes.Items {
+	for _, n := range nodeItems {
 		if v, ok := shake256Secret.Data[n.Name]; ok {
 			if string(v) == configShake256Sum {
 				// the md5sum matches, this master node has the new config
