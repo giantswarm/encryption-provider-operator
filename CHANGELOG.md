@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - 2023-07-13
 
+## [0.4.0] - 2023-07-13
+
 - Add necessary values for PSS policy warnings.
 
 ### Changed
@@ -67,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implement key rotation logic.
 
 [Unreleased]: https://github.com/giantswarm/giantswarm/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/giantswarm/giantswarm/compare/v0.4.0...v0.4.0
 [0.4.0]: https://github.com/giantswarm/giantswarm/compare/v0.4.0...v0.4.0
 [0.4.0]: https://github.com/giantswarm/giantswarm/compare/v0.4.0...v0.4.0
 [0.4.0]: https://github.com/giantswarm/giantswarm/compare/v0.3.2...v0.4.0
