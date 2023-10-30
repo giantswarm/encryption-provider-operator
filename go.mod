@@ -8,7 +8,7 @@ require (
 	github.com/giantswarm/k8smetadata v0.23.0
 	github.com/giantswarm/microerror v0.4.0
 	github.com/go-logr/logr v1.3.0
-	github.com/google/go-cmp v0.5.8
+	github.com/google/go-cmp v0.6.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.14.0
 	golang.org/x/text v0.13.0
