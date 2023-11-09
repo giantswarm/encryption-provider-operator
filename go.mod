@@ -6,7 +6,7 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/giantswarm/apiextensions-application v0.3.0
 	github.com/giantswarm/k8smetadata v0.23.0
-	github.com/giantswarm/microerror v0.4.0
+	github.com/giantswarm/microerror v0.4.1
 	github.com/go-logr/logr v1.3.0
 	github.com/google/go-cmp v0.6.0
 	go.uber.org/zap v1.26.0
