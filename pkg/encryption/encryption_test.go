@@ -121,6 +121,7 @@ resources:
 	}
 
 	for i, tc := range testCases {
+		tc := tc
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			err := removeOldEncryptionKey(&tc.secret)
 			if err != nil {
@@ -211,6 +212,7 @@ resources:
 	}
 
 	for i, tc := range testCases {
+		tc := tc
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
 			err := addNewEncryptionKey(&tc.secret, "testkey0")
 			if err != nil {
