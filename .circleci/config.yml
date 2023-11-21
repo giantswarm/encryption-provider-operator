@@ -95,6 +95,22 @@ workflows:
             tags:
               only: /^v.*/
       - architect/push-to-app-collection:
+          name: capz-app-collection
+          context: "architect"
+          app_name: "encryption-provider-operator"
+          app_namespace: "giantswarm"
+          app_collection_repo: "capz-app-collection"
+          requires:
+            - push-encryption-provider-operator-to-quay
+            - push-encryption-provider-operator-to-docker
+            - push-encryption-provider-operator-to-aliyun
+            - push-encryption-provider-operator-to-app-catalog
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - architect/push-to-app-collection:
           name: vsphere-app-collection
           context: "architect"
           app_name: "encryption-provider-operator"
