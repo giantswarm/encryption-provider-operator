@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  architect: giantswarm/architect@4.34.1
+  architect: giantswarm/architect@4.35.5
 
 workflows:
   build:
@@ -13,43 +13,14 @@ workflows:
             tags:
               only: /^v.*/
 
-      - architect/push-to-docker:
-          context: "architect"
-          name: push-encryption-provider-operator-to-quay
-          image: "quay.io/giantswarm/encryption-provider-operator"
-          username_envar: "QUAY_USERNAME"
-          password_envar: "QUAY_PASSWORD"
+      - architect/push-to-registries:
+          context: architect
+          name: push-to-registries
           requires:
             - go-build
-          # Needed to trigger job also on git tag.
           filters:
             tags:
               only: /^v.*/
-      - architect/push-to-docker:
-          context: "architect"
-          name: push-encryption-provider-operator-to-aliyun
-          image: "giantswarm-registry.cn-shanghai.cr.aliyuncs.com/giantswarm/encryption-provider-operator"
-          username_envar: "ALIYUN_USERNAME"
-          password_envar: "ALIYUN_PASSWORD"
-          requires:
-            - go-build
-          # Needed to trigger job also on git tag.
-          filters:
-            tags:
-              only: /^v.*/
-      - architect/push-to-docker:
-          context: "architect"
-          name: push-encryption-provider-operator-to-docker
-          image: "docker.io/giantswarm/encryption-provider-operator"
-          username_envar: "DOCKER_USERNAME"
-          password_envar: "DOCKER_PASSWORD"
-          requires:
-            - go-build
-          # Needed to trigger job also on git tag.
-          filters:
-            tags:
-              only: /^v.*/
-
       - architect/push-to-app-catalog:
           context: "architect"
           name: push-encryption-provider-operator-to-app-catalog
@@ -57,8 +28,7 @@ workflows:
           app_catalog_test: "control-plane-test-catalog"
           chart: "encryption-provider-operator"
           requires:
-            - push-encryption-provider-operator-to-quay
-          # Needed to trigger job also on git tag.
+            - push-to-registries
           filters:
             tags:
               only: /^v.*/
@@ -69,10 +39,8 @@ workflows:
           app_namespace: "giantswarm"
           app_collection_repo: "aws-app-collection"
           requires:
-            - push-encryption-provider-operator-to-quay
-            - push-encryption-provider-operator-to-docker
-            - push-encryption-provider-operator-to-aliyun
             - push-encryption-provider-operator-to-app-catalog
+            - push-to-registries
           filters:
             branches:
               ignore: /.*/
@@ -85,10 +53,8 @@ workflows:
           app_namespace: "giantswarm"
           app_collection_repo: "capa-app-collection"
           requires:
-            - push-encryption-provider-operator-to-quay
-            - push-encryption-provider-operator-to-docker
-            - push-encryption-provider-operator-to-aliyun
             - push-encryption-provider-operator-to-app-catalog
+            - push-to-registries
           filters:
             branches:
               ignore: /.*/
@@ -101,10 +67,8 @@ workflows:
           app_namespace: "giantswarm"
           app_collection_repo: "capz-app-collection"
           requires:
-            - push-encryption-provider-operator-to-quay
-            - push-encryption-provider-operator-to-docker
-            - push-encryption-provider-operator-to-aliyun
             - push-encryption-provider-operator-to-app-catalog
+            - push-to-registries
           filters:
             branches:
               ignore: /.*/
@@ -117,9 +81,8 @@ workflows:
           app_namespace: "giantswarm"
           app_collection_repo: "vsphere-app-collection"
           requires:
-            - push-encryption-provider-operator-to-quay
-            - push-encryption-provider-operator-to-docker
             - push-encryption-provider-operator-to-app-catalog
+            - push-to-registries
           filters:
             branches:
               ignore: /.*/
@@ -132,9 +95,8 @@ workflows:
           app_namespace: "giantswarm"
           app_collection_repo: "gcp-app-collection"
           requires:
-            - push-encryption-provider-operator-to-quay
-            - push-encryption-provider-operator-to-docker
             - push-encryption-provider-operator-to-app-catalog
+            - push-to-registries
           filters:
             branches:
               ignore: /.*/
@@ -147,9 +109,8 @@ workflows:
           app_namespace: "giantswarm"
           app_collection_repo: "azure-app-collection"
           requires:
-            - push-encryption-provider-operator-to-quay
-            - push-encryption-provider-operator-to-docker
             - push-encryption-provider-operator-to-app-catalog
+            - push-to-registries
           filters:
             branches:
               ignore: /.*/
@@ -162,9 +123,8 @@ workflows:
           app_namespace: "giantswarm"
           app_collection_repo: "cloud-director-app-collection"
           requires:
-            - push-encryption-provider-operator-to-quay
-            - push-encryption-provider-operator-to-docker
             - push-encryption-provider-operator-to-app-catalog
+            - push-to-registries
           filters:
             branches:
               ignore: /.*/
