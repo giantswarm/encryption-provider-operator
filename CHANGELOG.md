@@ -11,6 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Consider new control-plane label.
 
+- Add `global.podSecurityStandards.enforced` value for PSS migration.
+
+## [0.4.0] - 2023-07-13
+
+### Fixed
+
+- Add necessary values for PSS policy warnings.
+
 ### Changed
 
 - Push to vsphere app collection.
@@ -66,7 +74,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add main reconciliation loop logic.
 - Implement key rotation logic.
 
-[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/giantswarm/giantswarm/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/giantswarm/giantswarm/compare/v0.4.0...v0.4.0
+[0.4.0]: https://github.com/giantswarm/giantswarm/compare/v0.4.0...v0.4.0
+[0.4.0]: https://github.com/giantswarm/giantswarm/compare/v0.4.0...v0.4.0
+[0.4.0]: https://github.com/giantswarm/giantswarm/compare/v0.4.0...v0.4.0
+[0.4.0]: https://github.com/giantswarm/giantswarm/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/giantswarm/giantswarm/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/giantswarm/giantswarm/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/giantswarm/giantswarm/compare/v0.2.3...v0.3.0
