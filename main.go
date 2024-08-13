@@ -63,7 +63,7 @@ func main() {
 	flag.StringVar(&appCatalog, "app-catalog", "giantswarm-playground-catalog", "The app catalog for encryption-provider-hasher app")
 	flag.StringVar(&fromReleaseVersion, "from-release-version", "16.3.999", "The release version of cluster from which operator will reconcile CRs, If its missing it will assume CAPI release and reconcile as well.")
 	opts := zap.Options{
-		Development: true,
+		Development: false,
 		TimeEncoder: zapcore.RFC3339TimeEncoder,
 	}
 	opts.BindFlags(flag.CommandLine)
