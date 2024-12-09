@@ -90,5 +90,5 @@ replace (
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/gorilla/websocket v1.4.0 => github.com/gorilla/websocket v1.4.2
 	golang.org/x/net => golang.org/x/net v0.32.0
-	golang.org/x/text => golang.org/x/text v0.20.0
+	golang.org/x/text => golang.org/x/text v0.21.0
 )
