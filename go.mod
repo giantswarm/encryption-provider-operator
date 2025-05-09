@@ -1,6 +1,8 @@
 module github.com/giantswarm/encryption-provider-operator
 
-go 1.19
+go 1.23.0
+
+toolchain go1.24.3
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
@@ -11,7 +13,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.33.0
-	golang.org/x/text v0.22.0
+	golang.org/x/text v0.25.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.24.2
 	k8s.io/apimachinery v0.24.2
@@ -90,5 +92,5 @@ replace (
 	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
 	github.com/gorilla/websocket v1.4.0 => github.com/gorilla/websocket v1.4.2
 	golang.org/x/net => golang.org/x/net v0.34.0
-	golang.org/x/text => golang.org/x/text v0.22.0
+	golang.org/x/text => golang.org/x/text v0.25.0
 )
