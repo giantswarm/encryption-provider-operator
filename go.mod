@@ -1,6 +1,8 @@
 module github.com/giantswarm/encryption-provider-operator
 
-go 1.19
+go 1.21
+
+toolchain go1.24.3
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
@@ -8,7 +10,7 @@ require (
 	github.com/giantswarm/k8smetadata v0.25.0
 	github.com/giantswarm/microerror v0.4.1
 	github.com/go-logr/logr v1.4.2
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.33.0
 	golang.org/x/text v0.22.0
