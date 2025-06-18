@@ -6,7 +6,7 @@ toolchain go1.24.4
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/giantswarm/apiextensions-application v0.3.0
+	github.com/giantswarm/apiextensions-application v0.6.2
 	github.com/giantswarm/k8smetadata v0.25.0
 	github.com/giantswarm/microerror v0.4.1
 	github.com/go-logr/logr v1.4.2
@@ -83,7 +83,7 @@ require (
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
-	sigs.k8s.io/yaml v1.3.0 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
 replace (
