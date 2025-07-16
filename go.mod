@@ -9,7 +9,7 @@ require (
 	github.com/giantswarm/apiextensions-application v0.6.2
 	github.com/giantswarm/k8smetadata v0.25.0
 	github.com/giantswarm/microerror v0.4.1
-	github.com/go-logr/logr v1.4.2
+	github.com/go-logr/logr v1.4.3
 	github.com/google/go-cmp v0.6.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.40.0
