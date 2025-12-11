@@ -24,7 +24,7 @@ const (
 	appName      = "encryption-config-hasher"
 	appNamespace = "kube-system"
 
-	encryptionConfigHasherVersion = "0.2.0"
+	encryptionConfigHasherVersion = "0.3.0"
 )
 
 func chartURL(appCatalog string) string {
