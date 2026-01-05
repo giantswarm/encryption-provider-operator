@@ -93,6 +93,10 @@
                             }
                         }
                     }
+                },
+                "readOnlyRootFilesystem": {
+                    "type": "boolean",
+                    "default": true
                 }
             }
         },

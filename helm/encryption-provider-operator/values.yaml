@@ -28,6 +28,7 @@ securityContext:
   capabilities:
     drop:
       - ALL
+  readOnlyRootFilesystem: true
 
 global:
   podSecurityStandards:
