@@ -1,9 +1,6 @@
-project:
-  branch: "[[ .Branch ]]"
-  commit: "[[ .SHA ]]"
 image:
   name: "giantswarm/encryption-provider-operator"
-  tag: "[[ .Version ]]"
+  tag: ""
 registry:
   domain: gsoci.azurecr.io
 
@@ -31,6 +28,7 @@ securityContext:
   capabilities:
     drop:
       - ALL
+  readOnlyRootFilesystem: true
 
 global:
   podSecurityStandards:
