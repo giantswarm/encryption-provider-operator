@@ -2,7 +2,7 @@ module github.com/giantswarm/encryption-provider-operator
 
 go 1.25.0
 
-toolchain go1.26.1
+toolchain go1.26.2
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
