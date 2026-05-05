@@ -19,7 +19,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	capi "sigs.k8s.io/cluster-api/api/v1beta1"
+	capi "sigs.k8s.io/cluster-api/api/core/v1beta1"
 	ctrlclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	configv1 "github.com/giantswarm/encryption-provider-operator/pkg/config"
@@ -208,7 +208,7 @@ func (s *Service) createNewEncryptionProviderSecret(ctx context.Context, cluster
 			Labels: map[string]string{
 				label.Cluster:         clusterName,
 				label.ManagedBy:       project.Name(),
-				capi.ClusterLabelName: clusterName,
+				capi.ClusterNameLabel: clusterName,
 			},
 		},
 		Data: map[string][]byte{EncryptionProviderConfig: secretData},

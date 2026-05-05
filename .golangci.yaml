@@ -1,0 +1,12 @@
+version: "2"
+linters:
+  exclusions:
+    paths:
+      - controllers/cluster_controller.go
+      - pkg/encryption/encryption.go
+      - main.go
+    rules:
+      - linters:
+          - staticcheck
+        # We can upgrade this once all our clusters ave on v1beta2.
+        text: 'SA1019: "sigs.k8s.io/cluster-api/api/core/v1beta1" is deprecated: This package is deprecated and is going to be removed when support for v1beta1 will be dropped.'
