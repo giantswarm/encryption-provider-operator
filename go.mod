@@ -76,12 +76,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
-
-replace (
-	github.com/coreos/etcd => github.com/coreos/etcd v3.3.27+incompatible
-	github.com/dgrijalva/jwt-go => github.com/dgrijalva/jwt-go/v4 v4.0.0-preview1
-	github.com/gogo/protobuf v1.3.1 => github.com/gogo/protobuf v1.3.2
-	github.com/gorilla/websocket v1.4.0 => github.com/gorilla/websocket v1.4.2
-	golang.org/x/net => golang.org/x/net v0.53.0
-	golang.org/x/text => golang.org/x/text v0.36.0
-)
