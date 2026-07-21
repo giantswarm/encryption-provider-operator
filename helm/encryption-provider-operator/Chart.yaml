@@ -1,8 +1,8 @@
 apiVersion: v2
 name: encryption-provider-operator
-version: 0.7.0-dev
+version: 0.8.0
 description: "Operator for managing encryption config for encrypting k8s secrets in etcd"
-appVersion: 0.7.0-dev
+appVersion: 0.8.0
 home: "https://github.com/giantswarm/encryption-provider-operator"
 icon: https://s.giantswarm.io/app-icons/giantswarm/1/dark.svg
 annotations:
