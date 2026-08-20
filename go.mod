@@ -15,9 +15,9 @@ require (
 	golang.org/x/crypto v0.55.0
 	golang.org/x/text v0.41.0
 	gopkg.in/yaml.v2 v2.4.0
-	k8s.io/api v0.36.3
-	k8s.io/apimachinery v0.36.3
-	k8s.io/client-go v0.36.3
+	k8s.io/api v0.36.4
+	k8s.io/apimachinery v0.36.4
+	k8s.io/client-go v0.36.4
 	sigs.k8s.io/cluster-api v1.13.4
 	sigs.k8s.io/controller-runtime v0.24.1
 )
