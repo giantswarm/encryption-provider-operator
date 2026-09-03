@@ -83,3 +83,5 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.2 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace google.golang.org/grpc v1.82.1 => google.golang.org/grpc v1.83.2
